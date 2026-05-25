@@ -1195,6 +1195,139 @@ describe('WorkspacePanel', () => {
     ])
   })
 
+  it('adds a workspace directory to the chat context from the file tree menu', async () => {
+    await setWorkspaceState((state) => ({
+      ...state,
+      panelBySession: {
+        ...state.panelBySession,
+        'session-add-directory': {
+          isOpen: true,
+          activeView: 'all',
+        },
+      },
+      statusBySession: {
+        ...state.statusBySession,
+        'session-add-directory': {
+          state: 'ok',
+          workDir: '/repo',
+          repoName: 'repo',
+          branch: 'main',
+          isGitRepo: true,
+          changedFiles: [],
+        },
+      },
+      treeBySessionPath: {
+        ...state.treeBySessionPath,
+        'session-add-directory': {
+          '': {
+            state: 'ok',
+            path: '',
+            entries: [{ name: 'src', path: 'src', isDirectory: true }],
+          },
+        },
+      },
+    }))
+
+    const view = await renderPanel('session-add-directory')
+
+    await act(() => {
+      fireEvent.contextMenu(view.getByRole('button', { name: /src/i }), {
+        clientX: 260,
+        clientY: 80,
+      })
+    })
+
+    await clickElement(view.getByRole('menuitem', { name: 'Add to chat' }))
+
+    expect(useWorkspaceChatContextStore.getState().referencesBySession['session-add-directory']).toMatchObject([
+      {
+        kind: 'file',
+        path: 'src',
+        absolutePath: '/repo/src',
+        name: 'src/',
+        isDirectory: true,
+      },
+    ])
+  })
+
+  it('queues an inline workspace citation from the file tree menu', async () => {
+    useChatStore.setState({
+      sessions: {
+        'session-cite-file': {
+          messages: [],
+          chatState: 'idle',
+          connectionState: 'connected',
+          streamingText: '',
+          streamingToolInput: '',
+          activeToolUseId: null,
+          activeToolName: null,
+          activeThinkingId: null,
+          pendingPermission: null,
+          pendingComputerUsePermission: null,
+          tokenUsage: { input_tokens: 0, output_tokens: 0 },
+          elapsedSeconds: 0,
+          statusVerb: '',
+          slashCommands: [],
+          agentTaskNotifications: {},
+          elapsedTimer: null,
+        },
+      },
+    })
+    await setWorkspaceState((state) => ({
+      ...state,
+      panelBySession: {
+        ...state.panelBySession,
+        'session-cite-file': {
+          isOpen: true,
+          activeView: 'all',
+        },
+      },
+      statusBySession: {
+        ...state.statusBySession,
+        'session-cite-file': {
+          state: 'ok',
+          workDir: '/repo',
+          repoName: 'repo',
+          branch: 'main',
+          isGitRepo: true,
+          changedFiles: [],
+        },
+      },
+      treeBySessionPath: {
+        ...state.treeBySessionPath,
+        'session-cite-file': {
+          '': {
+            state: 'ok',
+            path: '',
+            entries: [{ name: 'App.tsx', path: 'src/App.tsx', isDirectory: false }],
+          },
+        },
+      },
+    }))
+
+    const view = await renderPanel('session-cite-file')
+
+    await act(() => {
+      fireEvent.contextMenu(view.getByRole('button', { name: /App\.tsx/i }), {
+        clientX: 260,
+        clientY: 80,
+      })
+    })
+
+    await clickElement(view.getByRole('menuitem', { name: 'Cite in message' }))
+
+    expect(useChatStore.getState().sessions['session-cite-file']?.composerInsertion).toMatchObject({
+      text: '@"src/App.tsx"',
+      reference: {
+        kind: 'file',
+        path: 'src/App.tsx',
+        absolutePath: '/repo/src/App.tsx',
+        name: 'App.tsx',
+        isDirectory: false,
+      },
+    })
+  })
+
   it('copies file paths from the file tree menu with the legacy clipboard fallback', async () => {
     const originalClipboard = navigator.clipboard
     const originalExecCommand = document.execCommand

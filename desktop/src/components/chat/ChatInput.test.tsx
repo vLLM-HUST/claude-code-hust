@@ -594,6 +594,69 @@ describe('ChatInput file mentions', () => {
     })
   })
 
+  it('inserts queued inline workspace citations at the current cursor and keeps file context attached', async () => {
+    render(<ChatInput compact />)
+
+    const input = screen.getByRole('textbox') as HTMLTextAreaElement
+    fireEvent.change(input, {
+      target: {
+        value: '请看实现',
+        selectionStart: 2,
+        selectionEnd: 2,
+      },
+    })
+    input.setSelectionRange(2, 2)
+
+    act(() => {
+      useChatStore.getState().queueComposerInsertion(sessionId, {
+        text: '@"src/App.tsx"',
+        reference: {
+          kind: 'file',
+          path: 'src/App.tsx',
+          absolutePath: '/repo/src/App.tsx',
+          name: 'App.tsx',
+        },
+      })
+    })
+
+    await waitFor(() => {
+      expect(input.value).toBe('请看 @"src/App.tsx" 实现')
+    })
+    expect(screen.getByText('App.tsx')).toBeInTheDocument()
+    expect(useWorkspaceChatContextStore.getState().referencesBySession[sessionId]).toMatchObject([
+      {
+        kind: 'file',
+        path: 'src/App.tsx',
+        absolutePath: '/repo/src/App.tsx',
+        name: 'App.tsx',
+      },
+    ])
+
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(mocks.wsSend).toHaveBeenCalledWith(sessionId, {
+      type: 'user_message',
+      content: '请看 @"src/App.tsx" 实现',
+      attachments: [{
+        type: 'file',
+        name: 'App.tsx',
+        path: '/repo/src/App.tsx',
+        isDirectory: undefined,
+        lineStart: undefined,
+        lineEnd: undefined,
+        note: undefined,
+        quote: undefined,
+      }],
+    })
+    const messages = useChatStore.getState().sessions[sessionId]?.messages ?? []
+    expect(messages[messages.length - 1]).toMatchObject({
+      type: 'user_text',
+      content: '请看 @"src/App.tsx" 实现',
+      modelContent: '@"/repo/src/App.tsx" 请看 @"src/App.tsx" 实现',
+      attachments: [{ name: 'App.tsx', path: 'src/App.tsx' }],
+    })
+  })
+
   it('turns a selected @ directory into a workspace chip and model path reference', async () => {
     mocks.search.mockResolvedValueOnce({
       currentPath: '/repo',

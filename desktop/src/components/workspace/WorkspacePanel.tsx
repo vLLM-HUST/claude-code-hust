@@ -44,8 +44,15 @@ type TreeNodeProps = {
   filterQuery: string
   onToggle: (path: string) => void
   onOpenFile: (path: string) => void
-  onFileContextMenu: (event: MouseEvent, path: string) => void
+  onFileContextMenu: (event: MouseEvent, path: string, isDirectory: boolean) => void
   activePath: string | null
+}
+
+type FileContextMenuState = {
+  path: string
+  isDirectory: boolean
+  x: number
+  y: number
 }
 
 const FILE_STATUS_META: Record<WorkspaceFileStatus, { label: string; className: string }> = {
@@ -141,6 +148,15 @@ function getFileBadgeMeta(name: string) {
 function resolveWorkspaceAttachmentPath(workDir: string | undefined, filePath: string) {
   if (!workDir || filePath.startsWith('/') || /^[a-zA-Z]:[\\/]/.test(filePath)) return filePath
   return `${workDir.replace(/[\\/]+$/, '')}/${filePath.replace(/^[/\\]+/, '')}`
+}
+
+function getWorkspaceReferenceName(path: string, isDirectory = false) {
+  const name = path.split('/').filter(Boolean).pop() || path
+  return isDirectory && !name.endsWith('/') ? `${name}/` : name
+}
+
+function formatInlineWorkspaceReference(path: string) {
+  return `@${JSON.stringify(path)}`
 }
 
 function isMarkdownPreview(tab: WorkspacePreviewTab) {
@@ -800,7 +816,7 @@ function TreeNode({
       <button
         type="button"
         onClick={() => onOpenFile(entry.path)}
-        onContextMenu={(event) => onFileContextMenu(event, entry.path)}
+        onContextMenu={(event) => onFileContextMenu(event, entry.path, false)}
         className={`group mx-2 flex h-8 w-[calc(100%-16px)] items-center gap-2 rounded-[7px] pr-2 text-left transition-colors ${
           isActive
             ? 'bg-[var(--color-surface-selected)] shadow-[inset_0_0_0_1.5px_var(--color-border-focus)]'
@@ -819,6 +835,7 @@ function TreeNode({
       <button
         type="button"
         onClick={() => onToggle(entry.path)}
+        onContextMenu={(event) => onFileContextMenu(event, entry.path, true)}
         aria-expanded={isVisuallyExpanded}
         className="group mx-2 flex h-8 w-[calc(100%-16px)] items-center gap-2 rounded-[7px] pr-2 text-left transition-colors hover:bg-[var(--color-surface-hover)]"
         style={{ paddingLeft: indent }}
@@ -898,7 +915,7 @@ export function WorkspacePanel({ sessionId }: WorkspacePanelProps) {
   const [filterQuery, setFilterQuery] = useState('')
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false)
   const [previewTabContextMenu, setPreviewTabContextMenu] = useState<{ tabId: string; x: number; y: number } | null>(null)
-  const [fileContextMenu, setFileContextMenu] = useState<{ path: string; x: number; y: number } | null>(null)
+  const [fileContextMenu, setFileContextMenu] = useState<FileContextMenuState | null>(null)
   const width = useWorkspacePanelStore((state) => state.width)
   const isOpen = useWorkspacePanelStore((state) => state.isPanelOpen(sessionId))
   const activeView = useWorkspacePanelStore((state) => state.getActiveView(sessionId))
@@ -924,6 +941,7 @@ export function WorkspacePanel({ sessionId }: WorkspacePanelProps) {
   const closePreviewTabs = useWorkspacePanelStore((state) => state.closePreviewTabs)
   const closePanel = useWorkspacePanelStore((state) => state.closePanel)
   const addWorkspaceReference = useWorkspaceChatContextStore((state) => state.addReference)
+  const queueComposerInsertion = useChatStore((state) => state.queueComposerInsertion)
   const chatState = useChatStore((state) => state.sessions[sessionId]?.chatState ?? 'idle')
   const refreshLifecycleRef = useRef({
     sessionId,
@@ -1015,12 +1033,26 @@ export function WorkspacePanel({ sessionId }: WorkspacePanelProps) {
     void openPreview(sessionId, path, 'file')
   }
 
-  const addFileToChat = (path: string) => {
+  const addWorkspacePathToChat = (path: string, isDirectory = false) => {
     addWorkspaceReference(sessionId, {
       kind: 'file',
       path,
       absolutePath: resolveWorkspaceAttachmentPath(status?.workDir, path),
-      name: path.split('/').pop() || path,
+      name: getWorkspaceReferenceName(path, isDirectory),
+      isDirectory,
+    })
+  }
+
+  const citeWorkspacePathInMessage = (path: string, isDirectory = false) => {
+    queueComposerInsertion(sessionId, {
+      text: formatInlineWorkspaceReference(path),
+      reference: {
+        kind: 'file',
+        path,
+        absolutePath: resolveWorkspaceAttachmentPath(status?.workDir, path),
+        name: getWorkspaceReferenceName(path, isDirectory),
+        isDirectory,
+      },
     })
   }
 
@@ -1061,11 +1093,11 @@ export function WorkspacePanel({ sessionId }: WorkspacePanelProps) {
     setPreviewTabContextMenu({ tabId, x: event.clientX, y: event.clientY })
   }
 
-  const handleFileContextMenu = (event: MouseEvent, path: string) => {
+  const handleFileContextMenu = (event: MouseEvent, path: string, isDirectory = false) => {
     event.preventDefault()
     event.stopPropagation()
     setPreviewTabContextMenu(null)
-    setFileContextMenu({ path, x: event.clientX, y: event.clientY })
+    setFileContextMenu({ path, isDirectory, x: event.clientX, y: event.clientY })
   }
 
   const handleClosePreviewTabs = (scope: WorkspacePreviewCloseScope) => {
@@ -1213,7 +1245,7 @@ export function WorkspacePanel({ sessionId }: WorkspacePanelProps) {
           ))}
           <button
             type="button"
-            onClick={() => addFileToChat(activePreviewTab.path)}
+            onClick={() => addWorkspacePathToChat(activePreviewTab.path)}
             className="ml-auto inline-flex h-6 shrink-0 items-center gap-1 rounded-[6px] px-1.5 text-[11px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]"
           >
             <span aria-hidden="true" className="material-symbols-outlined text-[14px]">person_add</span>
@@ -1461,13 +1493,25 @@ export function WorkspacePanel({ sessionId }: WorkspacePanelProps) {
             type="button"
             role="menuitem"
             onClick={() => {
-              addFileToChat(fileContextMenu.path)
+              addWorkspacePathToChat(fileContextMenu.path, fileContextMenu.isDirectory)
               setFileContextMenu(null)
             }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]"
           >
             <span aria-hidden="true" className="material-symbols-outlined text-[14px] text-[var(--color-text-tertiary)]">person_add</span>
             <span>{t('workspace.addToChat')}</span>
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              citeWorkspacePathInMessage(fileContextMenu.path, fileContextMenu.isDirectory)
+              setFileContextMenu(null)
+            }}
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]"
+          >
+            <span aria-hidden="true" className="material-symbols-outlined text-[14px] text-[var(--color-text-tertiary)]">chat_bubble</span>
+            <span>{t('workspace.citeInMessage')}</span>
           </button>
           <button
             type="button"

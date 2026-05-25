@@ -41,6 +41,18 @@ export type ComposerDraftState = {
   attachments: ComposerAttachment[]
 }
 
+export type ComposerReferenceInsertion = {
+  text: string
+  reference?: {
+    kind: 'file'
+    path: string
+    absolutePath?: string
+    name: string
+    isDirectory?: boolean
+  }
+  nonce: number
+}
+
 export type PerSessionState = {
   messages: UIMessage[]
   chatState: ChatState
@@ -75,6 +87,7 @@ export type PerSessionState = {
     attachments?: UIAttachment[]
     nonce: number
   } | null
+  composerInsertion?: ComposerReferenceInsertion | null
   composerDraft?: ComposerDraftState | null
 }
 
@@ -99,6 +112,7 @@ const DEFAULT_SESSION_STATE: PerSessionState = {
   activeGoal: null,
   elapsedTimer: null,
   composerPrefill: null,
+  composerInsertion: null,
   composerDraft: null,
 }
 
@@ -141,6 +155,11 @@ type ChatStore = {
     sessionId: string,
     prefill: { text: string; attachments?: UIAttachment[] },
   ) => void
+  queueComposerInsertion: (
+    sessionId: string,
+    insertion: Omit<ComposerReferenceInsertion, 'nonce'>,
+  ) => void
+  clearComposerInsertion: (sessionId: string, nonce?: number) => void
   setComposerDraft: (sessionId: string, draft: ComposerDraftState) => void
   clearComposerDraft: (sessionId: string) => void
   clearMessages: (sessionId: string) => void
@@ -1130,6 +1149,26 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           nonce: Date.now(),
         },
       })),
+    }))
+  },
+
+  queueComposerInsertion: (sessionId, insertion) => {
+    set((state) => ({
+      sessions: updateSessionIn(state.sessions, sessionId, () => ({
+        composerInsertion: {
+          ...insertion,
+          nonce: Date.now(),
+        },
+      })),
+    }))
+  },
+
+  clearComposerInsertion: (sessionId, nonce) => {
+    set((state) => ({
+      sessions: updateSessionIn(state.sessions, sessionId, (session) => {
+        if (nonce !== undefined && session.composerInsertion?.nonce !== nonce) return {}
+        return { composerInsertion: null }
+      }),
     }))
   },
 

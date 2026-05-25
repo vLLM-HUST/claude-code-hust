@@ -65,6 +65,21 @@ function workspaceReferenceToAttachment(reference: WorkspaceChatReference): Atta
   }
 }
 
+function insertComposerTokenAtRange(value: string, start: number, end: number, token: string) {
+  const boundedStart = Math.max(0, Math.min(start, value.length))
+  const boundedEnd = Math.max(boundedStart, Math.min(end, value.length))
+  const before = value.slice(0, boundedStart)
+  const after = value.slice(boundedEnd)
+  const leadingSpace = before.length > 0 && !/\s$/.test(before) ? ' ' : ''
+  const trailingSpace = after.length > 0 && !/^\s/.test(after) ? ' ' : ''
+  const insertion = `${leadingSpace}${token}${trailingSpace}`
+
+  return {
+    value: `${before}${insertion}${after}`,
+    cursorPos: before.length + insertion.length,
+  }
+}
+
 export function ChatInput({ variant = 'default', compact = false }: ChatInputProps) {
   const t = useTranslation()
   const isMobileComposer = useMobileViewport() && !isTauriRuntime()
@@ -105,12 +120,13 @@ export function ChatInput({ variant = 'default', compact = false }: ChatInputPro
       return next
     })
   }, [])
-  const { sendMessage, stopGeneration } = useChatStore()
+  const { sendMessage, stopGeneration, clearComposerInsertion } = useChatStore()
   const activeTabId = useTabStore((s) => s.activeTabId)
   const sessionState = useChatStore((s) => activeTabId ? s.sessions[activeTabId] : undefined)
   const chatState = sessionState?.chatState ?? 'idle'
   const slashCommands = sessionState?.slashCommands ?? []
   const composerPrefill = sessionState?.composerPrefill ?? null
+  const composerInsertion = sessionState?.composerInsertion ?? null
   const runtimeSelection = useSessionRuntimeStore((state) =>
     activeTabId ? state.selections[activeTabId] : undefined,
   )
@@ -241,6 +257,38 @@ export function ChatInput({ variant = 'default', compact = false }: ChatInputPro
       el?.setSelectionRange(cursor, cursor)
     })
   }, [composerPrefill, setComposerAttachments, setComposerInput])
+
+  useEffect(() => {
+    if (!composerInsertion || !activeTabId || isMemberSession) return
+
+    const el = textareaRef.current
+    const currentInput = inputRef.current
+    const start = el?.selectionStart ?? currentInput.length
+    const end = el?.selectionEnd ?? start
+    const next = insertComposerTokenAtRange(currentInput, start, end, composerInsertion.text)
+
+    if (composerInsertion.reference) {
+      addWorkspaceReference(activeTabId, composerInsertion.reference)
+    }
+    setComposerInput(next.value)
+    setFileSearchOpen(false)
+    setSlashMenuOpen(false)
+    setAtFilter('')
+    setAtCursorPos(-1)
+    clearComposerInsertion(activeTabId, composerInsertion.nonce)
+
+    requestAnimationFrame(() => {
+      textareaRef.current?.focus()
+      textareaRef.current?.setSelectionRange(next.cursorPos, next.cursorPos)
+    })
+  }, [
+    activeTabId,
+    addWorkspaceReference,
+    clearComposerInsertion,
+    composerInsertion,
+    isMemberSession,
+    setComposerInput,
+  ])
 
   const refreshGitInfo = useCallback(() => {
     if (!activeTabId) {

@@ -123,6 +123,7 @@ export const en = {
   'workspace.collapsePreview': 'Collapse preview',
   'workspace.addToChat': 'Add to chat',
   'workspace.addSelectionToChat': 'Add to chat',
+  'workspace.citeInMessage': 'Cite in message',
   'workspace.copyPath': 'Copy path',
   'workspace.pathCopied': 'Path copied.',
   'workspace.localComment': 'Local comment',

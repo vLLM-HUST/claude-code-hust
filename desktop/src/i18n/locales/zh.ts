@@ -125,6 +125,7 @@ export const zh: Record<TranslationKey, string> = {
   'workspace.collapsePreview': '收起预览',
   'workspace.addToChat': '添加到聊天',
   'workspace.addSelectionToChat': '添加到对话',
+  'workspace.citeInMessage': '引用到对话',
   'workspace.copyPath': '复制路径',
   'workspace.pathCopied': '路径已复制。',
   'workspace.localComment': '本地评论',
