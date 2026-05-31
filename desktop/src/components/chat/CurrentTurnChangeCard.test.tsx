@@ -143,6 +143,25 @@ describe('CurrentTurnChangeCard – rich file row (icon / name / type)', () => {
     expect(screen.getByText('index.ts')).toBeInTheDocument()
   })
 
+  it('sorts previewable changed files before source-only files', () => {
+    renderCard([
+      '/w/proj/package.json',
+      '/w/proj/preview.md',
+      '/w/proj/src/main.ts',
+      '/w/proj/index.html',
+      '/w/proj/style.css',
+    ])
+
+    const rows = screen.getAllByRole('button', { name: /turnChangesOpenInWorkspaceAria/ })
+    expect(rows.map((row) => row.textContent)).toEqual([
+      expect.stringContaining('preview.md'),
+      expect.stringContaining('index.html'),
+      expect.stringContaining('package.json'),
+      expect.stringContaining('main.ts'),
+      expect.stringContaining('style.css'),
+    ])
+  })
+
   it('renders the extension badge for a markdown file', () => {
     renderCard(['/w/proj/README.md'])
     // The type subtitle contains the ext in uppercase: "· MD"

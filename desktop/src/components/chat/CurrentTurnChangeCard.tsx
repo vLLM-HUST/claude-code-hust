@@ -42,10 +42,12 @@ export function CurrentTurnChangeCard({
   const [showAllFiles, setShowAllFiles] = useState(false)
 
   const files = useMemo<ChangedFileEntry[]>(
-    () => checkpoint.code.filesChanged.map((filePath) => ({
-      apiPath: filePath,
-      displayPath: relativizeWorkspacePath(filePath, workDir),
-    })),
+    () => checkpoint.code.filesChanged
+      .map((filePath) => ({
+        apiPath: filePath,
+        displayPath: relativizeWorkspacePath(filePath, workDir),
+      }))
+      .sort((a, b) => Number(isPreviewableChangedFile(b.displayPath)) - Number(isPreviewableChangedFile(a.displayPath))),
     [checkpoint.code.filesChanged, workDir],
   )
 

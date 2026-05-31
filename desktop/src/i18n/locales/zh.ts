@@ -98,7 +98,6 @@ export const zh: Record<TranslationKey, string> = {
   'openWith.title': '打开方式',
   'openWith.inAppBrowser': '应用内浏览器',
   'openWith.systemBrowser': '系统浏览器',
-  'openWith.systemDefault': '系统默认打开',
   'openWith.workspacePreview': '工作台预览',
   'openWith.openInTarget': '用 {target} 打开',
   'openWith.revealInTarget': '在 {target} 中显示',
@@ -115,7 +114,6 @@ export const zh: Record<TranslationKey, string> = {
   'assistantOutputs.kind.localhost': '本地服务',
   'assistantOutputs.moreOutputs': '+{count} 个输出',
   'assistantOutputs.open': '打开',
-  'assistantOutputs.copy': '复制路径',
 
   // ─── Workspace Panel ───────────────────────────────
   'workspace.changedFiles': '已更改文件',

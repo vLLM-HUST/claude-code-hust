@@ -96,7 +96,6 @@ export const en = {
   'openWith.title': 'Open with',
   'openWith.inAppBrowser': 'In-app browser',
   'openWith.systemBrowser': 'System browser',
-  'openWith.systemDefault': 'Open with system default',
   'openWith.workspacePreview': 'Workspace preview',
   'openWith.openInTarget': 'Open in {target}',
   'openWith.revealInTarget': 'Reveal in {target}',
@@ -113,7 +112,6 @@ export const en = {
   'assistantOutputs.kind.localhost': 'Localhost',
   'assistantOutputs.moreOutputs': '+{count} more',
   'assistantOutputs.open': 'Open',
-  'assistantOutputs.copy': 'Copy path',
 
   // ─── Workspace Panel ───────────────────────────────
   'workspace.changedFiles': 'Changed files',

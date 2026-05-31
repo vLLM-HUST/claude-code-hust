@@ -43,6 +43,8 @@ export function WorkspaceFileOpenWith({
     deps,
   )
 
+  if (items.length === 0) return null
+
   return (
     <>
       <div className="my-1 border-t border-[var(--color-border)]" role="separator" />
