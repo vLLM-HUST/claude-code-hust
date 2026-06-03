@@ -1185,6 +1185,105 @@ describe('WebSocket Chat Integration', () => {
     expect(titleIndex).toBeLessThan(completionIndex)
   })
 
+  it('refreshes the first-turn AI title from the completed assistant transcript', async () => {
+    const providerConfigPath = path.join(tmpDir, 'cc-haha', 'providers.json')
+    const originalProviderConfig = await fs.readFile(providerConfigPath, 'utf-8').catch(() => null)
+    const upstreamInputs: string[] = []
+    const titleModelServer = Bun.serve({
+      hostname: '127.0.0.1',
+      port: 0,
+      async fetch(req) {
+        const body = await req.json() as {
+          messages?: Array<{ content?: unknown }>
+        }
+        const input = String(body.messages?.[0]?.content ?? '')
+        upstreamInputs.push(input)
+        const title = input.includes('Echo: 看一下这个搜索结果')
+          ? 'Google 搜索企查查结果'
+          : 'Premature user title'
+        return Response.json({
+          content: [{ type: 'text', text: JSON.stringify({ title }) }],
+        })
+      },
+    })
+
+    try {
+      await fs.mkdir(path.dirname(providerConfigPath), { recursive: true })
+      await fs.writeFile(
+        providerConfigPath,
+        JSON.stringify({
+          activeId: 'title-transcript-provider',
+          providers: [
+            {
+              id: 'title-transcript-provider',
+              presetId: 'minimax',
+              name: 'Title Transcript Provider',
+              apiKey: 'test-key',
+              baseUrl: `http://127.0.0.1:${titleModelServer.port}/anthropic`,
+              apiFormat: 'anthropic',
+              models: {
+                main: 'minimax-main',
+                haiku: 'minimax-haiku',
+                sonnet: 'minimax-main',
+                opus: 'minimax-main',
+              },
+            },
+          ],
+        }, null, 2),
+        'utf-8',
+      )
+
+      const sessionId = `title-transcript-${crypto.randomUUID()}`
+      const messages: any[] = []
+      const ws = new WebSocket(`${wsUrl}/ws/${sessionId}`)
+
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          ws.close()
+          reject(new Error('Timed out waiting for transcript-backed session title'))
+        }, 8000)
+
+        ws.onmessage = (event) => {
+          const msg = JSON.parse(event.data as string)
+          messages.push(msg)
+          if (msg.type === 'connected') {
+            ws.send(JSON.stringify({
+              type: 'user_message',
+              content: '看一下这个搜索结果，请一条一条给我列出来',
+            }))
+            return
+          }
+          if (msg.type === 'session_title_updated' && msg.title === 'Google 搜索企查查结果') {
+            clearTimeout(timeout)
+            ws.close()
+            resolve()
+          }
+          if (msg.type === 'error') {
+            clearTimeout(timeout)
+            ws.close()
+            reject(new Error(msg.message))
+          }
+        }
+        ws.onerror = () => {
+          clearTimeout(timeout)
+          reject(new Error(`WebSocket error for title transcript session ${sessionId}`))
+        }
+      })
+
+      const titleMessages = messages.filter((msg) => msg.type === 'session_title_updated')
+      expect(titleMessages[0]?.title).toBe('看一下这个搜索结果，请一条一条给我列出来')
+      expect(titleMessages.map((msg) => msg.title)).toContain('Google 搜索企查查结果')
+      expect(upstreamInputs.some((input) => input.includes('Echo: 看一下这个搜索结果'))).toBe(true)
+    } finally {
+      titleModelServer.stop(true)
+      if (originalProviderConfig === null) {
+        await fs.rm(providerConfigPath, { force: true })
+      } else {
+        await fs.writeFile(providerConfigPath, originalProviderConfig, 'utf-8')
+      }
+    }
+  }, 10000)
+
   it('uses the /goal objective for the derived session title', async () => {
     const sessionId = `title-goal-${crypto.randomUUID()}`
     const messages: any[] = []

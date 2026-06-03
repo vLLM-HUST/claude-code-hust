@@ -7,7 +7,6 @@
  */
 
 import { ProviderService } from './providerService.js'
-import { SettingsService } from './settingsService.js'
 import { sessionService } from './sessionService.js'
 import { hahaOpenAIOAuthService } from './hahaOpenAIOAuthService.js'
 import { isOpenAIOfficialProviderId } from './openaiOfficialProvider.js'
@@ -16,23 +15,49 @@ import { resolveOpenAICodexModel } from '../../services/openaiAuth/models.js'
 import { anthropicToOpenaiResponses } from '../proxy/transform/anthropicToOpenaiResponses.js'
 import { openaiResponsesStreamToAnthropicResponse } from '../proxy/streaming/openaiResponsesStreamToAnthropicResponse.js'
 import { cleanSessionTitleSource, hasSessionTitleMarkup } from '../../utils/sessionTitleText.js'
+import { extractConversationText, SESSION_TITLE_PROMPT } from '../../utils/sessionTitle.js'
 
 const TITLE_MAX_LEN = 50
 const TITLE_MAX_OUTPUT_TOKENS = 100
+const TITLE_INPUT_MAX_LEN = 2000
 
-const TITLE_SYSTEM_PROMPT = `Generate a concise, sentence-case title (3-7 words) that captures the main topic or goal of this coding session. The title should be clear enough that the user recognizes the session in a list. Use sentence case: capitalize only the first word and proper nouns.
+export type TitleConversationTurn = {
+  userText: string
+  assistantText?: string
+}
 
-Return JSON with a single "title" field.
+export function buildConversationTitleInput(turns: TitleConversationTurn[]): string {
+  const messages = turns.flatMap((turn) => {
+    const entries: any[] = [
+      {
+        type: 'user',
+        message: { content: turn.userText },
+      },
+    ]
+    const assistantText = turn.assistantText?.trim()
+    if (assistantText) {
+      entries.push({
+        type: 'assistant',
+        message: { content: assistantText },
+      })
+    }
+    return entries
+  })
 
-Good examples:
-{"title": "Fix login button on mobile"}
-{"title": "Add OAuth authentication"}
-{"title": "Debug failing CI tests"}
-{"title": "Refactor API client error handling"}
+  return extractConversationText(messages as any)
+}
 
-Bad (too vague): {"title": "Code changes"}
-Bad (too long): {"title": "Investigate and fix the issue where the login button does not respond on mobile devices"}
-Bad (wrong case): {"title": "Fix Login Button On Mobile"}`
+function buildTitleUserPrompt(trimmed: string): string {
+  return [
+    'Generate a title for the following conversation transcript.',
+    'Do not answer, continue, or summarize the conversation itself.',
+    'Return only JSON with a single "title" field.',
+    '',
+    '<conversation>',
+    trimmed.slice(0, TITLE_INPUT_MAX_LEN),
+    '</conversation>',
+  ].join('\n')
+}
 
 /**
  * Quick placeholder title derived from user message text.
@@ -87,24 +112,37 @@ export async function generateTitle(
 
     const model = resolvedProvider.models.haiku || resolvedProvider.models.main
     const url = `${resolvedProvider.baseUrl.replace(/\/+$/, '')}/v1/messages`
-    const shouldDisableThinking = await shouldDisableThinkingForTitle()
+    const userPrompt = buildTitleUserPrompt(trimmed)
+    const requestHeaders = {
+      'Content-Type': 'application/json',
+      'x-api-key': resolvedProvider.apiKey,
+      'anthropic-version': '2023-06-01',
+    }
+    const requestBody = {
+      model,
+      max_tokens: TITLE_MAX_OUTPUT_TOKENS,
+      system: SESSION_TITLE_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }],
+    }
 
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': resolvedProvider.apiKey,
-        'anthropic-version': '2023-06-01',
-      },
+      headers: requestHeaders,
       body: JSON.stringify({
-        model,
-        max_tokens: 100,
-        system: TITLE_SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: trimmed.slice(0, 2000) }],
-        ...(shouldDisableThinking && { thinking: { type: 'disabled' } }),
+        ...requestBody,
+        thinking: { type: 'disabled' },
       }),
       signal: AbortSignal.timeout(15_000),
     })
+
+    if (!response.ok && response.status >= 400 && response.status < 500) {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: requestHeaders,
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(15_000),
+      })
+    }
 
     if (!response.ok) return null
 
@@ -131,8 +169,8 @@ async function generateOpenAIOfficialTitle(
   const requestBody = anthropicToOpenaiResponses({
     model: mappedModel,
     max_tokens: TITLE_MAX_OUTPUT_TOKENS,
-    system: TITLE_SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: trimmed.slice(0, 2000) }],
+    system: SESSION_TITLE_PROMPT,
+    messages: [{ role: 'user', content: buildTitleUserPrompt(trimmed) }],
     stream: true,
     thinking: { type: 'disabled' },
   })
@@ -234,11 +272,6 @@ function looksLikeStructuredTitleFragment(text: string): boolean {
     text.includes('}') ||
     /\\?"title\\?"\s*:/.test(text)
   )
-}
-
-async function shouldDisableThinkingForTitle(): Promise<boolean> {
-  const settings = await new SettingsService().getUserSettings()
-  return settings.alwaysThinkingEnabled === false
 }
 
 /**
