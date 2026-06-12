@@ -21,7 +21,7 @@ async function listFiles(dir: string) {
 
 describe('persistent storage upgrade migrations', () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cc-haha-persistence-'))
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cc-hust-persistence-'))
     process.env.CLAUDE_CONFIG_DIR = tempDir
     resetPersistentStorageMigrationsForTests()
   })
@@ -33,10 +33,10 @@ describe('persistent storage upgrade migrations', () => {
   })
 
   test('migrates legacy providers index and writes a backup before changing it', async () => {
-    const ccHahaDir = path.join(tempDir, 'cc-haha')
-    await fs.mkdir(ccHahaDir, { recursive: true })
+    const ccHustDir = path.join(tempDir, 'cc-hust')
+    await fs.mkdir(ccHustDir, { recursive: true })
     await fs.writeFile(
-      path.join(ccHahaDir, 'providers.json'),
+      path.join(ccHustDir, 'providers.json'),
       JSON.stringify({
         activeProviderId: 'provider-1',
         rootFutureField: { keep: true },
@@ -56,9 +56,9 @@ describe('persistent storage upgrade migrations', () => {
     const report = await ensurePersistentStorageUpgraded()
 
     expect(report.failures).toEqual([])
-    expect(report.migratedEntries).toContain('cc-haha/providers.json')
+    expect(report.migratedEntries).toContain('cc-hust/providers.json')
 
-    const migrated = JSON.parse(await fs.readFile(path.join(ccHahaDir, 'providers.json'), 'utf-8')) as {
+    const migrated = JSON.parse(await fs.readFile(path.join(ccHustDir, 'providers.json'), 'utf-8')) as {
       schemaVersion?: number
       activeId?: string | null
       activeProviderId?: string
@@ -71,7 +71,7 @@ describe('persistent storage upgrade migrations', () => {
     expect(migrated.rootFutureField).toEqual({ keep: true })
     expect(migrated.providers?.[0]?.extraFutureField).toBe('keep-me')
 
-    const backups = (await listFiles(ccHahaDir)).filter((file) => file.startsWith('providers.json.bak-before-migration-'))
+    const backups = (await listFiles(ccHustDir)).filter((file) => file.startsWith('providers.json.bak-before-migration-'))
     expect(backups.length).toBe(1)
 
     const service = new ProviderService()
@@ -80,7 +80,7 @@ describe('persistent storage upgrade migrations', () => {
     expect(activeId).toBe('provider-1')
 
     await service.updateProvider('provider-1', { name: 'Renamed Provider' })
-    const rewritten = JSON.parse(await fs.readFile(path.join(ccHahaDir, 'providers.json'), 'utf-8')) as {
+    const rewritten = JSON.parse(await fs.readFile(path.join(ccHustDir, 'providers.json'), 'utf-8')) as {
       rootFutureField?: unknown
       providers?: Array<Record<string, unknown>>
     }
@@ -88,7 +88,7 @@ describe('persistent storage upgrade migrations', () => {
     expect(rewritten.providers?.[0]?.extraFutureField).toBe('keep-me')
   })
 
-  test('imports legacy root providers config into cc-haha storage without deleting the source', async () => {
+  test('imports legacy root providers config into cc-hust storage without deleting the source', async () => {
     await fs.writeFile(
       path.join(tempDir, 'providers.json'),
       JSON.stringify({
@@ -115,14 +115,14 @@ describe('persistent storage upgrade migrations', () => {
     const report = await ensurePersistentStorageUpgraded()
 
     expect(report.failures).toEqual([])
-    expect(report.migratedEntries).toContain('providers.json -> cc-haha/providers.json')
-    expect(report.migratedEntries).toContain('providers.json -> cc-haha/settings.json')
+    expect(report.migratedEntries).toContain('providers.json -> cc-hust/providers.json')
+    expect(report.migratedEntries).toContain('providers.json -> cc-hust/settings.json')
     expect(JSON.parse(await fs.readFile(path.join(tempDir, 'providers.json'), 'utf-8'))).toMatchObject({
       version: 1,
       activeModel: 'legacy-sonnet',
     })
 
-    const migrated = JSON.parse(await fs.readFile(path.join(tempDir, 'cc-haha', 'providers.json'), 'utf-8')) as {
+    const migrated = JSON.parse(await fs.readFile(path.join(tempDir, 'cc-hust', 'providers.json'), 'utf-8')) as {
       activeId?: string | null
       providers?: Array<{
         id?: string
@@ -146,7 +146,7 @@ describe('persistent storage upgrade migrations', () => {
       },
     })
 
-    const managedSettings = JSON.parse(await fs.readFile(path.join(tempDir, 'cc-haha', 'settings.json'), 'utf-8')) as {
+    const managedSettings = JSON.parse(await fs.readFile(path.join(tempDir, 'cc-hust', 'settings.json'), 'utf-8')) as {
       env?: Record<string, string>
     }
     expect(managedSettings.env).toMatchObject({
@@ -161,9 +161,9 @@ describe('persistent storage upgrade migrations', () => {
     expect(providers[0]?.models.main).toBe('legacy-sonnet')
   })
 
-  test('does not overwrite current cc-haha provider storage with a legacy root config', async () => {
-    const ccHahaDir = path.join(tempDir, 'cc-haha')
-    await fs.mkdir(ccHahaDir, { recursive: true })
+  test('does not overwrite current cc-hust provider storage with a legacy root config', async () => {
+    const ccHustDir = path.join(tempDir, 'cc-hust')
+    await fs.mkdir(ccHustDir, { recursive: true })
     await fs.writeFile(
       path.join(tempDir, 'providers.json'),
       JSON.stringify({
@@ -181,7 +181,7 @@ describe('persistent storage upgrade migrations', () => {
       'utf-8',
     )
     await fs.writeFile(
-      path.join(ccHahaDir, 'providers.json'),
+      path.join(ccHustDir, 'providers.json'),
       JSON.stringify({
         schemaVersion: CURRENT_PROVIDER_INDEX_SCHEMA_VERSION,
         activeId: null,
@@ -193,8 +193,8 @@ describe('persistent storage upgrade migrations', () => {
     const report = await ensurePersistentStorageUpgraded()
 
     expect(report.failures).toEqual([])
-    expect(report.migratedEntries).not.toContain('providers.json -> cc-haha/providers.json')
-    const current = JSON.parse(await fs.readFile(path.join(ccHahaDir, 'providers.json'), 'utf-8')) as {
+    expect(report.migratedEntries).not.toContain('providers.json -> cc-hust/providers.json')
+    const current = JSON.parse(await fs.readFile(path.join(ccHustDir, 'providers.json'), 'utf-8')) as {
       activeId?: string | null
       providers?: unknown[]
     }
@@ -221,24 +221,24 @@ describe('persistent storage upgrade migrations', () => {
   })
 
   test('quarantines malformed managed settings instead of blocking startup', async () => {
-    const ccHahaDir = path.join(tempDir, 'cc-haha')
-    await fs.mkdir(ccHahaDir, { recursive: true })
-    await fs.writeFile(path.join(ccHahaDir, 'settings.json'), '{"env":', 'utf-8')
+    const ccHustDir = path.join(tempDir, 'cc-hust')
+    await fs.mkdir(ccHustDir, { recursive: true })
+    await fs.writeFile(path.join(ccHustDir, 'settings.json'), '{"env":', 'utf-8')
 
     const report = await ensurePersistentStorageUpgraded()
 
     expect(report.failures).toEqual([])
-    expect(report.migratedEntries).toContain('cc-haha/settings.json')
-    expect(JSON.parse(await fs.readFile(path.join(ccHahaDir, 'settings.json'), 'utf-8'))).toEqual({})
-    const quarantined = (await listFiles(ccHahaDir)).filter((file) => file.startsWith('settings.json.invalid-'))
+    expect(report.migratedEntries).toContain('cc-hust/settings.json')
+    expect(JSON.parse(await fs.readFile(path.join(ccHustDir, 'settings.json'), 'utf-8'))).toEqual({})
+    const quarantined = (await listFiles(ccHustDir)).filter((file) => file.startsWith('settings.json.invalid-'))
     expect(quarantined.length).toBe(1)
   })
 
   test('upgrades existing DeepSeek managed env to follow global thinking settings', async () => {
-    const ccHahaDir = path.join(tempDir, 'cc-haha')
-    await fs.mkdir(ccHahaDir, { recursive: true })
+    const ccHustDir = path.join(tempDir, 'cc-hust')
+    await fs.mkdir(ccHustDir, { recursive: true })
     await fs.writeFile(
-      path.join(ccHahaDir, 'settings.json'),
+      path.join(ccHustDir, 'settings.json'),
       JSON.stringify({
         env: {
           ANTHROPIC_BASE_URL: 'https://api.deepseek.com/anthropic',
@@ -247,7 +247,7 @@ describe('persistent storage upgrade migrations', () => {
           ANTHROPIC_DEFAULT_HAIKU_MODEL: 'deepseek-v4-flash',
           ANTHROPIC_DEFAULT_SONNET_MODEL: 'deepseek-v4-pro',
           ANTHROPIC_DEFAULT_OPUS_MODEL: 'deepseek-v4-pro',
-          CC_HAHA_SEND_DISABLED_THINKING: '1',
+          CC_HUST_SEND_DISABLED_THINKING: '1',
           USER_CUSTOM_ENV: 'keep-me',
         },
       }, null, 2),
@@ -257,12 +257,12 @@ describe('persistent storage upgrade migrations', () => {
     const report = await ensurePersistentStorageUpgraded()
 
     expect(report.failures).toEqual([])
-    expect(report.migratedEntries).toContain('cc-haha/settings.json')
+    expect(report.migratedEntries).toContain('cc-hust/settings.json')
 
-    const migrated = JSON.parse(await fs.readFile(path.join(ccHahaDir, 'settings.json'), 'utf-8')) as {
+    const migrated = JSON.parse(await fs.readFile(path.join(ccHustDir, 'settings.json'), 'utf-8')) as {
       env?: Record<string, string>
     }
-    expect(migrated.env?.CC_HAHA_SEND_DISABLED_THINKING).toBeUndefined()
+    expect(migrated.env?.CC_HUST_SEND_DISABLED_THINKING).toBeUndefined()
     expect(migrated.env?.ANTHROPIC_DEFAULT_HAIKU_MODEL_SUPPORTED_CAPABILITIES).toBe(
       'thinking,effort,adaptive_thinking,max_effort',
     )
@@ -274,7 +274,7 @@ describe('persistent storage upgrade migrations', () => {
     )
     expect(migrated.env?.USER_CUSTOM_ENV).toBe('keep-me')
 
-    const backups = (await listFiles(ccHahaDir)).filter((file) => file.startsWith('settings.json.bak-before-migration-'))
+    const backups = (await listFiles(ccHustDir)).filter((file) => file.startsWith('settings.json.bak-before-migration-'))
     expect(backups.length).toBe(1)
   })
 })

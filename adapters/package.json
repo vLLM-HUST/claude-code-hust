@@ -31,5 +31,10 @@
   "devDependencies": {
     "@types/ws": "^8.5.0",
     "bun-types": "latest"
-  }
+  },
+  "trustedDependencies": [
+    "@whiskeysockets/baileys",
+    "protobufjs",
+    "sharp"
+  ]
 }

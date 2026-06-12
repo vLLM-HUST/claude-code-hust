@@ -185,7 +185,7 @@ describe('formatImStatus', () => {
   it('formats an active session summary for mobile reading', () => {
     const text = formatImStatus({
       sessionId: 'abc1234567890',
-      projectName: 'claude-code-haha',
+      projectName: 'claude-code-hust',
       branch: 'main',
       model: 'claude-sonnet',
       state: 'tool_executing',
@@ -199,7 +199,7 @@ describe('formatImStatus', () => {
       },
     })
 
-    expect(text).toContain('项目: claude-code-haha (main)')
+    expect(text).toContain('项目: claude-code-hust (main)')
     expect(text).toContain('会话: abc12345…')
     expect(text).toContain('模型: claude-sonnet')
     expect(text).toContain('状态: 执行工具中 (Running tests)')

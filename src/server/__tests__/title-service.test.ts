@@ -12,7 +12,7 @@ import {
   saveAiTitle,
 } from '../services/titleService.js'
 import { sessionService } from '../services/sessionService.js'
-import { hahaOpenAIOAuthService } from '../services/hahaOpenAIOAuthService.js'
+import { hustOpenAIOAuthService } from '../services/hustOpenAIOAuthService.js'
 
 describe('titleService', () => {
   let tmpDir: string
@@ -28,7 +28,7 @@ describe('titleService', () => {
 
   afterEach(async () => {
     globalThis.fetch = originalFetch
-    hahaOpenAIOAuthService.dispose()
+    hustOpenAIOAuthService.dispose()
     restoreEnv('CLAUDE_CONFIG_DIR', originalConfigDir)
     await fs.rm(tmpDir, { recursive: true, force: true })
   })
@@ -48,9 +48,9 @@ describe('titleService', () => {
 
     try {
       const providerId = 'zhipu-test'
-      await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+      await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
       await fs.writeFile(
-        path.join(tmpDir, 'cc-haha', 'providers.json'),
+        path.join(tmpDir, 'cc-hust', 'providers.json'),
         JSON.stringify({
           activeId: providerId,
           providers: [
@@ -98,9 +98,9 @@ describe('titleService', () => {
 
     try {
       const providerId = 'fallback-thinking-test'
-      await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+      await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
       await fs.writeFile(
-        path.join(tmpDir, 'cc-haha', 'providers.json'),
+        path.join(tmpDir, 'cc-hust', 'providers.json'),
         JSON.stringify({
           activeId: providerId,
           providers: [
@@ -146,9 +146,9 @@ describe('titleService', () => {
 
     try {
       const providerId = 'deepseek-test'
-      await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+      await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
       await fs.writeFile(
-        path.join(tmpDir, 'cc-haha', 'providers.json'),
+        path.join(tmpDir, 'cc-hust', 'providers.json'),
         JSON.stringify({
           activeId: providerId,
           providers: [
@@ -206,9 +206,9 @@ describe('titleService', () => {
 
     try {
       const providerId = 'title-clean-test'
-      await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+      await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
       await fs.writeFile(
-        path.join(tmpDir, 'cc-haha', 'providers.json'),
+        path.join(tmpDir, 'cc-hust', 'providers.json'),
         JSON.stringify({
           activeId: providerId,
           providers: [
@@ -268,9 +268,9 @@ describe('titleService', () => {
 
     try {
       const providerId = 'title-language-test'
-      await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+      await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
       await fs.writeFile(
-        path.join(tmpDir, 'cc-haha', 'providers.json'),
+        path.join(tmpDir, 'cc-hust', 'providers.json'),
         JSON.stringify({
           activeId: providerId,
           providers: [
@@ -330,7 +330,7 @@ describe('titleService', () => {
   test('generates titles when ChatGPT Official OAuth is active', async () => {
     const providerService = new ProviderService()
     await providerService.activateProvider('openai-official')
-    await hahaOpenAIOAuthService.saveTokens({
+    await hustOpenAIOAuthService.saveTokens({
       accessToken: 'access-for-title',
       refreshToken: 'refresh-for-title',
       expiresAt: Date.now() + 60 * 60_000,

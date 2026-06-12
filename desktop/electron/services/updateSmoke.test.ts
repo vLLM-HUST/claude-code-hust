@@ -8,18 +8,18 @@ import { ElectronUpdaterService } from './updater'
 describe('Electron update smoke updater', () => {
   it('stays disabled unless a smoke version is configured', () => {
     expect(parseUpdateSmokeEnv({})).toBeNull()
-    expect(parseUpdateSmokeEnv({ CC_HAHA_ELECTRON_UPDATE_SMOKE_VERSION: '  ' })).toBeNull()
+    expect(parseUpdateSmokeEnv({ CC_HUST_ELECTRON_UPDATE_SMOKE_VERSION: '  ' })).toBeNull()
   })
 
   it('drives the real Electron updater service contract and logs the install signal', async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), 'cc-haha-update-smoke-'))
+    const tempDir = mkdtempSync(join(tmpdir(), 'cc-hust-update-smoke-'))
     const logPath = join(tempDir, 'update-smoke.jsonl')
     try {
       const updater = createUpdateSmokeUpdaterFromEnv({
-        CC_HAHA_ELECTRON_UPDATE_SMOKE_VERSION: '9.9.9-smoke',
-        CC_HAHA_ELECTRON_UPDATE_SMOKE_BODY: 'Smoke notes',
-        CC_HAHA_ELECTRON_UPDATE_SMOKE_TOTAL_BYTES: '200',
-        CC_HAHA_ELECTRON_UPDATE_SMOKE_LOG: logPath,
+        CC_HUST_ELECTRON_UPDATE_SMOKE_VERSION: '9.9.9-smoke',
+        CC_HUST_ELECTRON_UPDATE_SMOKE_BODY: 'Smoke notes',
+        CC_HUST_ELECTRON_UPDATE_SMOKE_TOTAL_BYTES: '200',
+        CC_HUST_ELECTRON_UPDATE_SMOKE_LOG: logPath,
       })
       expect(updater).not.toBeNull()
       const service = new ElectronUpdaterService(updater!)

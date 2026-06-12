@@ -1,15 +1,15 @@
-// desktop/src/stores/hahaOpenAIOAuthStore.ts
+// desktop/src/stores/hustOpenAIOAuthStore.ts
 
 import { create } from 'zustand'
 import {
-  hahaOpenAIOAuthApi,
-  type HahaOpenAIOAuthStatus,
-} from '../api/hahaOpenAIOAuth'
+  hustOpenAIOAuthApi,
+  type HustOpenAIOAuthStatus,
+} from '../api/hustOpenAIOAuth'
 
 const POLL_INTERVAL_MS = 2_000
 
-type HahaOpenAIOAuthState = {
-  status: HahaOpenAIOAuthStatus | null
+type HustOpenAIOAuthState = {
+  status: HustOpenAIOAuthStatus | null
   isPolling: boolean
   isLoading: boolean
   error: string | null
@@ -21,7 +21,7 @@ type HahaOpenAIOAuthState = {
   stopPolling: () => void
 }
 
-export const useHahaOpenAIOAuthStore = create<HahaOpenAIOAuthState>((set, get) => {
+export const useHustOpenAIOAuthStore = create<HustOpenAIOAuthState>((set, get) => {
   let pollTimer: ReturnType<typeof setTimeout> | null = null
 
   return {
@@ -32,7 +32,7 @@ export const useHahaOpenAIOAuthStore = create<HahaOpenAIOAuthState>((set, get) =
 
     fetchStatus: async () => {
       try {
-        const status = await hahaOpenAIOAuthApi.status()
+        const status = await hustOpenAIOAuthApi.status()
         set({ status, error: null })
       } catch (err) {
         set({ error: err instanceof Error ? err.message : String(err) })
@@ -42,7 +42,7 @@ export const useHahaOpenAIOAuthStore = create<HahaOpenAIOAuthState>((set, get) =
     login: async () => {
       set({ isLoading: true, error: null })
       try {
-        const res = await hahaOpenAIOAuthApi.start()
+        const res = await hustOpenAIOAuthApi.start()
         set({ isLoading: false })
         return { authorizeUrl: res.authorizeUrl }
       } catch (err) {
@@ -58,7 +58,7 @@ export const useHahaOpenAIOAuthStore = create<HahaOpenAIOAuthState>((set, get) =
       get().stopPolling()
       set({ isLoading: true, error: null })
       try {
-        await hahaOpenAIOAuthApi.logout()
+        await hustOpenAIOAuthApi.logout()
         set({ status: { loggedIn: false }, isLoading: false })
       } catch (err) {
         set({

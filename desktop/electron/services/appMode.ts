@@ -39,7 +39,7 @@ export function dirHasPortableData(dir: string): boolean {
       'skills',
       'plugins',
       'cowork_plugins',
-      'cc-haha',
+      'cc-hust',
     ].some(file => fs.existsSync(path.join(dir, file)) && fs.statSync(path.join(dir, file)).isDirectory())
 }
 
@@ -91,7 +91,7 @@ export function applyStartupPortableMode(
   const portableDir = determineStartupPortableDir(app, env)
   if (!portableDir) return null
   env.CLAUDE_CONFIG_DIR = portableDir
-  env.CC_HAHA_APP_PORTABLE_DIR = '1'
+  env.CC_HUST_APP_PORTABLE_DIR = '1'
   env.WEBVIEW2_USER_DATA_FOLDER = path.join(portableDir, 'EBWebView')
   fs.mkdirSync(env.WEBVIEW2_USER_DATA_FOLDER, { recursive: true })
   return portableDir
@@ -110,7 +110,7 @@ export function getAppMode(
     defaultPortableDir: defaultPortableDir(app),
     activeConfigDir,
     configDirSource: envConfigDir
-      ? env.CC_HAHA_APP_PORTABLE_DIR ? 'portable' : 'environment'
+      ? env.CC_HUST_APP_PORTABLE_DIR ? 'portable' : 'environment'
       : 'system',
   }
 }

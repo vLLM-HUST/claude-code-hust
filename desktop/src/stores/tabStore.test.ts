@@ -49,7 +49,7 @@ describe('tabStore', () => {
     vi.mocked(sessionsApi.list).mockReturnValueOnce(new Promise((resolve) => {
       resolveSessions = resolve
     }) as never)
-    localStorage.setItem('cc-haha-open-tabs', JSON.stringify({
+    localStorage.setItem('cc-hust-open-tabs', JSON.stringify({
       openTabs: [{ sessionId: 'session-1', title: 'Old Session', type: 'session' }],
       activeTabId: 'session-1',
     }))

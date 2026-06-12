@@ -71,13 +71,13 @@ function sampleInput(overrides?: Partial<CreateProviderInput>): CreateProviderIn
 
 /** Read the settings.json written to the temp config dir */
 async function readSettings(): Promise<Record<string, unknown>> {
-  const raw = await fs.readFile(path.join(tmpDir, 'cc-haha', 'settings.json'), 'utf-8')
+  const raw = await fs.readFile(path.join(tmpDir, 'cc-hust', 'settings.json'), 'utf-8')
   return JSON.parse(raw) as Record<string, unknown>
 }
 
 /** Read the providers.json written to the temp config dir */
 async function readProvidersConfig(): Promise<Record<string, unknown>> {
-  const raw = await fs.readFile(path.join(tmpDir, 'cc-haha', 'providers.json'), 'utf-8')
+  const raw = await fs.readFile(path.join(tmpDir, 'cc-hust', 'providers.json'), 'utf-8')
   return JSON.parse(raw) as Record<string, unknown>
 }
 
@@ -99,25 +99,25 @@ describe('ProviderService', () => {
     })
 
     test('should recover from a malformed providers index after an upgrade', async () => {
-      await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
-      await fs.writeFile(path.join(tmpDir, 'cc-haha', 'providers.json'), '{not json', 'utf-8')
+      await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
+      await fs.writeFile(path.join(tmpDir, 'cc-hust', 'providers.json'), '{not json', 'utf-8')
 
       const svc = new ProviderService()
       const result = await svc.listProviders()
-      const files = await fs.readdir(path.join(tmpDir, 'cc-haha'))
+      const files = await fs.readdir(path.join(tmpDir, 'cc-hust'))
 
       expect(result).toEqual({ providers: [], activeId: null })
       expect(files.some((name) => name.startsWith('providers.json.invalid-'))).toBe(true)
     })
 
     test('should normalize a legacy activeProviderId field', async () => {
-      await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+      await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
       const provider = {
         id: 'legacy-provider',
         ...sampleInput({ name: 'Legacy Provider' }),
       }
       await fs.writeFile(
-        path.join(tmpDir, 'cc-haha', 'providers.json'),
+        path.join(tmpDir, 'cc-hust', 'providers.json'),
         JSON.stringify({ activeProviderId: provider.id, providers: [provider] }),
         'utf-8',
       )
@@ -192,7 +192,7 @@ describe('ProviderService', () => {
       const svc = new ProviderService()
       await svc.addProvider(sampleInput())
 
-      await expect(fs.readFile(path.join(tmpDir, 'cc-haha', 'settings.json'), 'utf-8')).rejects.toThrow()
+      await expect(fs.readFile(path.join(tmpDir, 'cc-hust', 'settings.json'), 'utf-8')).rejects.toThrow()
     })
 
     test('custom providers declare thinking and effort capability passthrough for user-defined models', async () => {
@@ -240,7 +240,7 @@ describe('ProviderService', () => {
 
       const settings = await readSettings()
       const env = settings.env as Record<string, string>
-      expect(env.CC_HAHA_SEND_DISABLED_THINKING).toBeUndefined()
+      expect(env.CC_HUST_SEND_DISABLED_THINKING).toBeUndefined()
       expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL_SUPPORTED_CAPABILITIES).toBe(
         'thinking,effort,adaptive_thinking,max_effort',
       )
@@ -306,9 +306,9 @@ describe('ProviderService', () => {
 
     describe('ChatGPT Official provider metadata', () => {
       test('normalizes the built-in ChatGPT provider as an active provider id', async () => {
-        await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+        await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
         await fs.writeFile(
-          path.join(tmpDir, 'cc-haha', 'providers.json'),
+          path.join(tmpDir, 'cc-hust', 'providers.json'),
           JSON.stringify({ activeId: 'openai-official', providers: [] }),
           'utf-8',
         )
@@ -349,9 +349,9 @@ describe('ProviderService', () => {
         const settings = await readSettings()
         expect(config.activeId).toBe('openai-official')
         const env = settings.env as Record<string, string>
-        expect(env.CC_HAHA_OPENAI_OAUTH_PROVIDER).toBe('1')
+        expect(env.CC_HUST_OPENAI_OAUTH_PROVIDER).toBe('1')
         expect(env.OPENAI_CODEX_OAUTH_FILE).toBe(
-          path.join(tmpDir, 'cc-haha', 'openai-oauth.json'),
+          path.join(tmpDir, 'cc-hust', 'openai-oauth.json'),
         )
         expect(env.ANTHROPIC_MODEL).toBe('gpt-5.3-codex')
         expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('gpt-5.4-mini')
@@ -388,9 +388,9 @@ describe('ProviderService', () => {
 
         const settings = await readSettings()
         const env = settings.env as Record<string, string>
-        expect(env.CC_HAHA_OPENAI_OAUTH_PROVIDER).toBe('1')
+        expect(env.CC_HUST_OPENAI_OAUTH_PROVIDER).toBe('1')
         expect(env.OPENAI_CODEX_OAUTH_FILE).toBe(
-          path.join(tmpDir, 'cc-haha', 'openai-oauth.json'),
+          path.join(tmpDir, 'cc-hust', 'openai-oauth.json'),
         )
         expect(env.ANTHROPIC_BASE_URL).toBeUndefined()
         expect(env.ANTHROPIC_API_KEY).toBeUndefined()
@@ -398,9 +398,9 @@ describe('ProviderService', () => {
       })
 
       test('auth status reports ChatGPT Official from the desktop OpenAI token file', async () => {
-        await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+        await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
         await fs.writeFile(
-          path.join(tmpDir, 'cc-haha', 'openai-oauth.json'),
+          path.join(tmpDir, 'cc-hust', 'openai-oauth.json'),
           JSON.stringify({
             accessToken: 'openai-access',
             refreshToken: 'openai-refresh',
@@ -440,7 +440,7 @@ describe('ProviderService', () => {
         await svc.activateProvider(provider.id)
 
         const env = (await readSettings()).env as Record<string, string>
-        expect(env.CC_HAHA_OPENAI_OAUTH_PROVIDER).toBeUndefined()
+        expect(env.CC_HUST_OPENAI_OAUTH_PROVIDER).toBeUndefined()
         expect(env.OPENAI_CODEX_OAUTH_FILE).toBeUndefined()
         expect(env.ANTHROPIC_BASE_URL).toBe('https://api.example.com')
         expect(env.ANTHROPIC_AUTH_TOKEN).toBe('sk-test-key-123')
@@ -807,7 +807,7 @@ describe('ProviderService', () => {
 
       expect(status).toEqual({
         hasAuth: true,
-        source: 'cc-haha-provider',
+        source: 'cc-hust-provider',
         activeProvider: provider.name,
       })
     })
@@ -824,7 +824,7 @@ describe('ProviderService', () => {
 
       expect(status).toEqual({
         hasAuth: true,
-        source: 'cc-haha-provider',
+        source: 'cc-hust-provider',
         activeProvider: provider.name,
       })
     })
@@ -848,9 +848,9 @@ describe('ProviderService', () => {
 
     test('should preserve existing settings.json fields on activation', async () => {
       // Pre-seed settings with an extra field
-      await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+      await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
       await fs.writeFile(
-        path.join(tmpDir, 'cc-haha', 'settings.json'),
+        path.join(tmpDir, 'cc-hust', 'settings.json'),
         JSON.stringify({ theme: 'dark', env: { CUSTOM_VAR: 'keep-me' } }),
       )
 
@@ -868,8 +868,8 @@ describe('ProviderService', () => {
     })
 
     test('should recover malformed managed settings before activation sync', async () => {
-      await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
-      await fs.writeFile(path.join(tmpDir, 'cc-haha', 'settings.json'), '{not json', 'utf-8')
+      await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
+      await fs.writeFile(path.join(tmpDir, 'cc-hust', 'settings.json'), '{not json', 'utf-8')
 
       const svc = new ProviderService()
       const provider = await svc.addProvider(sampleInput())
@@ -878,7 +878,7 @@ describe('ProviderService', () => {
 
       const settings = await readSettings()
       const env = settings.env as Record<string, string>
-      const files = await fs.readdir(path.join(tmpDir, 'cc-haha'))
+      const files = await fs.readdir(path.join(tmpDir, 'cc-hust'))
 
       expect(env.ANTHROPIC_BASE_URL).toBe('https://api.example.com')
       expect(files.some((name) => name.startsWith('settings.json.invalid-'))).toBe(true)

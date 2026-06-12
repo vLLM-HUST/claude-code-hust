@@ -1,0 +1,43 @@
+# LiteLLM proxy configuration for vLLM (local inference)
+#
+# Usage:
+#   1. Start vLLM server:
+#      vllm-hust serve /data/shared-models/Qwen3-32B \
+#        --served-model-name Qwen3-32B \
+#        --port 18000 \
+#        --tensor-parallel-size 2 \
+#        --max-model-len 8192 \
+#        --gpu-memory-utilization 0.92 \
+#        --enable-chunked-prefill \
+#        --reasoning-config '{"reasoning_parser":"qwen3"}'
+#
+#   2. Start LiteLLM proxy:
+#      litellm --config litellm_config_vllm.yaml --port 4000
+#
+#   3. Configure claude-code-hust .env:
+#      ANTHROPIC_AUTH_TOKEN=sk-anything
+#      ANTHROPIC_BASE_URL=http://localhost:4000
+#      ANTHROPIC_MODEL=Qwen3-32B
+#      ...
+#
+#   4. Start claude-code-hust:
+#      ./bin/claude-hust
+
+model_list:
+  - model_name: Qwen3-32B
+    litellm_params:
+      model: openai/Qwen3-32B
+      api_base: http://localhost:18000/v1
+      api_key: "EMPTY"  # vLLM does not require a real API key
+
+  - model_name: Qwen3-8B
+    litellm_params:
+      model: openai/Qwen3-8B
+      api_base: http://localhost:18001/v1
+      api_key: "EMPTY"  # vLLM does not require a real API key
+
+litellm_settings:
+  # Drop Anthropic-specific params (thinking, cache_control) that vLLM doesn't support
+  drop_params: true
+  # Route Anthropic /v1/messages to OpenAI /v1/chat/completions
+  use_chat_completions_url_for_anthropic_messages: true

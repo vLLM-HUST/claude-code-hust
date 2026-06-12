@@ -65,7 +65,7 @@ describe('Electron sidecar manager', () => {
   })
 
   it('passes portable config and adapter server URL through the sidecar env', () => {
-    const configDir = mkdtempSync(path.join(tmpdir(), 'cc-haha-config-'))
+    const configDir = mkdtempSync(path.join(tmpdir(), 'cc-hust-config-'))
     try {
       const env = buildSidecarEnv({ CLAUDE_CONFIG_DIR: configDir }, '/app/dist')
       expect(env.CLAUDE_CONFIG_DIR).toBe(configDir)

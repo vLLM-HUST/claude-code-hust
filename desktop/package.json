@@ -2,8 +2,8 @@
   "name": "claude-code-desktop",
   "private": true,
   "version": "0.4.1",
-  "description": "Desktop coding agent workbench for Claude Code Haha.",
-  "homepage": "https://github.com/NanmiCoder/cc-haha",
+  "description": "Desktop coding agent workbench for Claude Code Hust.",
+  "homepage": "https://github.com/NanmiCoder/cc-hust",
   "author": {
     "name": "NanmiCoder",
     "email": "relakkes@gmail.com"
@@ -11,15 +11,15 @@
   "type": "module",
   "main": "electron-dist/main.cjs",
   "build": {
-    "appId": "com.claude-code-haha.desktop",
-    "productName": "Claude Code Haha",
+    "appId": "com.claude-code-hust.desktop",
+    "productName": "Claude Code Hust",
     "asar": true,
     "asarUnpack": [
       "dist/**",
       "node_modules/node-pty/**",
       "src-tauri/binaries/**"
     ],
-    "artifactName": "Claude-Code-Haha-${version}-${os}-${arch}.${ext}",
+    "artifactName": "Claude-Code-Hust-${version}-${os}-${arch}.${ext}",
     "npmRebuild": false,
     "directories": {
       "output": "build-artifacts/electron"
@@ -67,7 +67,7 @@
       {
         "provider": "github",
         "owner": "NanmiCoder",
-        "repo": "cc-haha"
+        "repo": "cc-hust"
       }
     ]
   },

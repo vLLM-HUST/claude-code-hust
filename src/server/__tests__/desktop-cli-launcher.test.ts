@@ -81,12 +81,12 @@ describe('ensureDesktopCliLauncherInstalled', () => {
     process.env.CLAUDE_CLI_PATH = sourcePath
 
     const status = await ensureDesktopCliLauncherInstalled()
-    const launcherPath = join(tempHome, '.local', 'bin', 'claude-haha')
+    const launcherPath = join(tempHome, '.local', 'bin', 'claude-hust')
     const shellConfigPath = join(tempHome, '.zshrc')
 
     expect(status.supported).toBe(true)
     expect(status.installed).toBe(true)
-    expect(status.command).toBe('claude-haha')
+    expect(status.command).toBe('claude-hust')
     expect(status.launcherPath).toBe(launcherPath)
     expect(status.availableInNewTerminals).toBe(true)
     expect(status.needsTerminalRestart).toBe(true)
@@ -111,15 +111,15 @@ describe('ensureDesktopCliLauncherInstalled', () => {
 
     await ensureDesktopCliLauncherInstalled()
 
-    const launcher = await readFile(join(tempHome, '.local', 'bin', 'claude-haha'), 'utf8')
+    const launcher = await readFile(join(tempHome, '.local', 'bin', 'claude-hust'), 'utf8')
     expect(launcher).toContain(`export CLAUDE_CONFIG_DIR='${portableDir}'`)
   })
 
   it('uses a Windows cmd launcher so portable env can be injected', () => {
-    expect(getDesktopCliCommandName('win32')).toBe('claude-haha.cmd')
+    expect(getDesktopCliCommandName('win32')).toBe('claude-hust.cmd')
 
     process.env.CLAUDE_CONFIG_DIR = 'C:\\Portable\\ClaudeConfig'
-    const wrapper = buildWindowsLauncherWrapper('C:\\Apps\\cc-haha\\claude-sidecar.exe')
+    const wrapper = buildWindowsLauncherWrapper('C:\\Apps\\cc-hust\\claude-sidecar.exe')
 
     expect(wrapper).toContain('set "CLAUDE_CONFIG_DIR=C:\\Portable\\ClaudeConfig"')
     expect(wrapper).toContain(
@@ -136,6 +136,6 @@ describe('ensureDesktopCliLauncherInstalled', () => {
 
     expect(status.supported).toBe(false)
     expect(status.installed).toBe(false)
-    expect(status.command).toBe('claude-haha')
+    expect(status.command).toBe('claude-hust')
   })
 })

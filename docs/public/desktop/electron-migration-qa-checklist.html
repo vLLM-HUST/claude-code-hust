@@ -225,7 +225,7 @@
   </dialog>
 
   <script>
-    const storageKey = "cc-haha-electron-migration-qa:2026-05-31";
+    const storageKey = "cc-hust-electron-migration-qa:2026-05-31";
     const groups = [
       {
         id: "main-sync-regression",
@@ -251,7 +251,7 @@
           "打开终端，执行 printf electron-terminal-ok，并确认输出可见。",
           "关闭终端后检查没有残留 PTY shell。",
           "打开目录选择器并取消，确认 native folder dialog 可用。",
-          "复制本机 cc-haha provider/model 配置到隔离 CLAUDE_CONFIG_DIR，确认模型选择器显示真实 provider。",
+          "复制本机 cc-hust provider/model 配置到隔离 CLAUDE_CONFIG_DIR，确认模型选择器显示真实 provider。",
           "用真实模型读取 fixture 文件并审批执行 bun test，确认结果 1 pass / 0 fail，且项目文件未被修改。"
         ],
         pass: "packaged app 可独立启动，server/terminal/dialog/真实模型 chat 四条核心桌面能力工作正常。"

@@ -16,13 +16,13 @@ import {
 const tempDirs: string[] = []
 
 function tempDir() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-haha-app-mode-'))
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-hust-app-mode-'))
   tempDirs.push(dir)
   return dir
 }
 
 function app(root = tempDir()): AppModeAppLike & { root: string } {
-  const exe = path.join(root, 'Claude Code Haha.app', 'Contents', 'MacOS', 'Claude Code Haha')
+  const exe = path.join(root, 'Claude Code Hust.app', 'Contents', 'MacOS', 'Claude Code Hust')
   const userData = path.join(root, 'user-data')
   fs.mkdirSync(path.dirname(exe), { recursive: true })
   fs.writeFileSync(exe, '')
@@ -73,7 +73,7 @@ describe('Electron app mode service', () => {
 
     expect(applyStartupPortableMode(fakeApp, env)).toBe(defaultDir)
     expect(env.CLAUDE_CONFIG_DIR).toBe(defaultDir)
-    expect(env.CC_HAHA_APP_PORTABLE_DIR).toBe('1')
+    expect(env.CC_HUST_APP_PORTABLE_DIR).toBe('1')
     expect(env.WEBVIEW2_USER_DATA_FOLDER).toBe(path.join(defaultDir, 'EBWebView'))
   })
 
@@ -87,7 +87,7 @@ describe('Electron app mode service', () => {
       activeConfigDir: fakeApp.getPath('userData'),
       configDirSource: 'system',
     })
-    expect(getAppMode(fakeApp, { CLAUDE_CONFIG_DIR: '/portable', CC_HAHA_APP_PORTABLE_DIR: '1' })).toMatchObject({
+    expect(getAppMode(fakeApp, { CLAUDE_CONFIG_DIR: '/portable', CC_HUST_APP_PORTABLE_DIR: '1' })).toMatchObject({
       mode: 'portable',
       portableDir: '/portable',
       activeConfigDir: '/portable',

@@ -1,14 +1,14 @@
-// desktop/src/api/hahaOpenAIOAuth.ts
+// desktop/src/api/hustOAuth.ts
 
 import { api, getBaseUrl } from './client'
 
-export type HahaOpenAIOAuthStatus =
+export type HustOAuthStatus =
   | { loggedIn: false }
   | {
       loggedIn: true
       expiresAt: number | null
-      email: string | null
-      accountId: string | null
+      scopes: string[]
+      subscriptionType: 'pro' | 'max' | 'team' | 'enterprise' | null
     }
 
 function currentServerPort(): number {
@@ -20,19 +20,19 @@ function currentServerPort(): number {
   return parsed
 }
 
-export const hahaOpenAIOAuthApi = {
+export const hustOAuthApi = {
   start() {
     return api.post<{ authorizeUrl: string; state: string }>(
-      '/api/haha-openai-oauth/start',
+      '/api/hust-oauth/start',
       { serverPort: currentServerPort() },
     )
   },
 
   status() {
-    return api.get<HahaOpenAIOAuthStatus>('/api/haha-openai-oauth')
+    return api.get<HustOAuthStatus>('/api/hust-oauth')
   },
 
   logout() {
-    return api.delete<{ ok: true }>('/api/haha-openai-oauth')
+    return api.delete<{ ok: true }>('/api/hust-oauth')
   },
 }

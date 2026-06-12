@@ -2,6 +2,7 @@
 .env.*
 !.env.example
 node_modules
+.bootstrap-done
 openspec
 .DS_Store
 

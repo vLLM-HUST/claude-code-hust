@@ -1276,7 +1276,7 @@ describe('WebSocket Chat Integration', () => {
   })
 
   it('refreshes the first-turn AI title from the completed assistant transcript', async () => {
-    const providerConfigPath = path.join(tmpDir, 'cc-haha', 'providers.json')
+    const providerConfigPath = path.join(tmpDir, 'cc-hust', 'providers.json')
     const originalProviderConfig = await fs.readFile(providerConfigPath, 'utf-8').catch(() => null)
     const upstreamInputs: string[] = []
     const titleModelServer = Bun.serve({
@@ -1814,7 +1814,7 @@ describe('WebSocket Chat Integration', () => {
   })
 
   it('should keep a long desktop session alive in a /tmp project across engineering turns', async () => {
-    const projectDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cc-haha-issue247-project-'))
+    const projectDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cc-hust-issue247-project-'))
     let sessionId: string | undefined
 
     try {

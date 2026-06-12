@@ -185,7 +185,7 @@ const enSidebar = [
 ]
 
 export default withMermaid(defineConfig({
-  title: 'Claude Code Haha',
+  title: 'Claude Code Hust',
   description: '基于 Claude Code 泄露源码修复的本地可运行版本，支持接入任意 Anthropic 兼容 API',
   lastUpdated: true,
   base: '/',
@@ -231,7 +231,7 @@ export default withMermaid(defineConfig({
       description: 'A locally runnable version repaired from the leaked Claude Code source, with support for any Anthropic-compatible API endpoint.',
       themeConfig: {
         editLink: {
-          pattern: 'https://github.com/NanmiCoder/cc-haha/edit/main/docs/:path',
+          pattern: 'https://github.com/NanmiCoder/cc-hust/edit/main/docs/:path',
           text: 'Edit this page on GitHub',
         },
         nav: [
@@ -245,18 +245,18 @@ export default withMermaid(defineConfig({
 
   themeConfig: {
     editLink: {
-      pattern: 'https://github.com/NanmiCoder/cc-haha/edit/main/docs/:path',
+      pattern: 'https://github.com/NanmiCoder/cc-hust/edit/main/docs/:path',
       text: '在 GitHub 上编辑此页',
     },
     search: {
       provider: 'local',
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/NanmiCoder/cc-haha' },
+      { icon: 'github', link: 'https://github.com/NanmiCoder/cc-hust' },
     ],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright 2026 Claude Code Haha Contributors',
+      copyright: 'Copyright 2026 Claude Code Hust Contributors',
     },
   },
 }))

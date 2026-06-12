@@ -1,12 +1,12 @@
-// desktop/src/stores/hahaOAuthStore.ts
+// desktop/src/stores/hustOAuthStore.ts
 
 import { create } from 'zustand'
-import { hahaOAuthApi, type HahaOAuthStatus } from '../api/hahaOAuth'
+import { hustOAuthApi, type HustOAuthStatus } from '../api/hustOAuth'
 
 const POLL_INTERVAL_MS = 2_000
 
-type HahaOAuthState = {
-  status: HahaOAuthStatus | null
+type HustOAuthState = {
+  status: HustOAuthStatus | null
   isPolling: boolean
   isLoading: boolean
   error: string | null
@@ -18,7 +18,7 @@ type HahaOAuthState = {
   stopPolling: () => void
 }
 
-export const useHahaOAuthStore = create<HahaOAuthState>((set, get) => {
+export const useHustOAuthStore = create<HustOAuthState>((set, get) => {
   let pollTimer: ReturnType<typeof setTimeout> | null = null
 
   return {
@@ -29,7 +29,7 @@ export const useHahaOAuthStore = create<HahaOAuthState>((set, get) => {
 
     fetchStatus: async () => {
       try {
-        const status = await hahaOAuthApi.status()
+        const status = await hustOAuthApi.status()
         set({ status, error: null })
       } catch (err) {
         set({ error: err instanceof Error ? err.message : String(err) })
@@ -39,7 +39,7 @@ export const useHahaOAuthStore = create<HahaOAuthState>((set, get) => {
     login: async () => {
       set({ isLoading: true, error: null })
       try {
-        const res = await hahaOAuthApi.start()
+        const res = await hustOAuthApi.start()
         set({ isLoading: false })
         return { authorizeUrl: res.authorizeUrl }
       } catch (err) {
@@ -55,7 +55,7 @@ export const useHahaOAuthStore = create<HahaOAuthState>((set, get) => {
       get().stopPolling()
       set({ isLoading: true })
       try {
-        await hahaOAuthApi.logout()
+        await hustOAuthApi.logout()
         set({ status: { loggedIn: false }, isLoading: false })
       } catch (err) {
         set({

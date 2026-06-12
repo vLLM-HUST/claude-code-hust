@@ -18,11 +18,11 @@ const canUseNativeDialogs = desktopHost.capabilities.dialogs
 const isWindows = typeof navigator !== 'undefined' && /Win/.test(navigator.platform)
 const SESSION_LIST_AUTO_REFRESH_MS = 30_000
 const SESSION_LIST_FOCUS_REFRESH_MIN_MS = 5_000
-const PROJECT_ORDER_STORAGE_KEY = 'cc-haha-sidebar-project-order'
-const PROJECT_PINNED_STORAGE_KEY = 'cc-haha-sidebar-pinned-projects'
-const PROJECT_HIDDEN_STORAGE_KEY = 'cc-haha-sidebar-hidden-projects'
-const PROJECT_ORGANIZATION_STORAGE_KEY = 'cc-haha-sidebar-project-organization'
-const PROJECT_SORT_STORAGE_KEY = 'cc-haha-sidebar-project-sort'
+const PROJECT_ORDER_STORAGE_KEY = 'cc-hust-sidebar-project-order'
+const PROJECT_PINNED_STORAGE_KEY = 'cc-hust-sidebar-pinned-projects'
+const PROJECT_HIDDEN_STORAGE_KEY = 'cc-hust-sidebar-hidden-projects'
+const PROJECT_ORGANIZATION_STORAGE_KEY = 'cc-hust-sidebar-project-organization'
+const PROJECT_SORT_STORAGE_KEY = 'cc-hust-sidebar-project-sort'
 const PROJECT_GROUP_VISIBLE_COUNT = 6
 const PROJECT_GROUP_SCROLL_COUNT = 12
 
@@ -613,12 +613,12 @@ export function Sidebar({ isMobile = false, onRequestClose }: SidebarProps) {
               className={`sidebar-copy ${expanded ? 'sidebar-copy--visible' : 'sidebar-copy--hidden'} text-[13px] font-semibold tracking-tight text-[var(--color-text-primary)]`}
               style={{ fontFamily: 'var(--font-headline)' }}
             >
-              Claude Code <span className="text-[var(--color-primary-container)]">Haha</span>
+              Claude Code <span className="text-[var(--color-primary-container)]">Hust</span>
             </span>
           </div>
           <div className={`flex items-center ${expanded ? 'gap-1.5' : 'flex-col gap-2'}`}>
             <a
-              href="https://github.com/NanmiCoder/cc-haha"
+              href="https://github.com/NanmiCoder/cc-hust"
               target="_blank"
               rel="noopener noreferrer"
               className={`sidebar-copy ${expanded ? 'sidebar-copy--visible' : 'sidebar-copy--hidden'} inline-flex items-center justify-center rounded-md p-1 text-[var(--color-text-tertiary)] transition-colors hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]`}

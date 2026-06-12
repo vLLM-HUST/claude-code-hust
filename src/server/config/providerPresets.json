@@ -54,10 +54,10 @@
     "needsApiKey": true,
     "websiteUrl": "https://open.bigmodel.cn",
     "apiKeyUrl": "https://www.bigmodel.cn/invite?icode=d41B2qi8Z5xNwTGLNPPF3OZLO2QH3C0EBTSr%2BArzMw4%3D",
-    "promoText": "智谱 GLM 为 cc-haha 用户准备了专属邀请福利，使用此链接注册后可领取新用户权益。",
+    "promoText": "智谱 GLM 为 cc-hust 用户准备了专属邀请福利，使用此链接注册后可领取新用户权益。",
     "authStrategy": "auth_token",
     "defaultEnv": {
-      "CC_HAHA_SEND_DISABLED_THINKING": "1"
+      "CC_HUST_SEND_DISABLED_THINKING": "1"
     },
     "modelContextWindows": {
       "glm-5.1": 200000,
@@ -81,7 +81,7 @@
     "apiKeyUrl": "https://platform.kimi.com/console/api-keys",
     "authStrategy": "auth_token",
     "defaultEnv": {
-      "CC_HAHA_SEND_DISABLED_THINKING": "1"
+      "CC_HUST_SEND_DISABLED_THINKING": "1"
     },
     "modelContextWindows": {
       "kimi-k2.6": 262144,
@@ -127,7 +127,7 @@
     "needsApiKey": true,
     "websiteUrl": "https://jiekou.ai",
     "apiKeyUrl": "https://jiekou.ai/referral?invited_code=OBNU3K",
-    "promoText": "接口AI为 cc-haha 的用户提供官方资源与稳定高性能体验，订阅包价格为官方 8 折；绑定 GitHub 后还可领取 3 美元优惠券。",
+    "promoText": "接口AI为 cc-hust 的用户提供官方资源与稳定高性能体验，订阅包价格为官方 8 折；绑定 GitHub 后还可领取 3 美元优惠券。",
     "featured": true,
     "authStrategy": "auth_token",
     "defaultEnv": {
@@ -154,7 +154,7 @@
     "needsApiKey": true,
     "websiteUrl": "https://www.shengsuanyun.com",
     "apiKeyUrl": "https://www.shengsuanyun.com/?from=CH_LEJ88KWR",
-    "promoText": "胜算云为 cc-haha 的用户提供了特别福利，使用此链接注册的新用户可获 10 元模力及首充 10% 赠送！",
+    "promoText": "胜算云为 cc-hust 的用户提供了特别福利，使用此链接注册的新用户可获 10 元模力及首充 10% 赠送！",
     "featured": true,
     "authStrategy": "auth_token",
     "defaultEnv": {
@@ -204,6 +204,31 @@
     "authStrategy": "auth_token_empty_api_key",
     "defaultEnv": {
       "ANTHROPIC_AUTH_TOKEN": "ollama"
+    }
+  },
+  {
+    "id": "vllm",
+    "name": "vLLM (Local)",
+    "baseUrl": "http://localhost:18000",
+    "apiFormat": "openai_chat",
+    "defaultModels": {
+      "main": "Qwen3-32B",
+      "haiku": "Qwen3-32B",
+      "sonnet": "Qwen3-32B",
+      "opus": "Qwen3-32B"
+    },
+    "needsApiKey": false,
+    "websiteUrl": "https://docs.vllm.ai",
+    "promoText": "vLLM 使用 OpenAI 兼容协议（/v1/chat/completions），通过内置协议转换代理接入。Base URL 填 vLLM 服务地址（默认 http://localhost:18000），不要追加 /v1。请确保 vLLM 服务已启动并加载了对应模型。建议将 vLLM 的 --max-model-len 设置为至少 32K 以获得最佳效果。",
+    "authStrategy": "auth_token_empty_api_key",
+    "defaultEnv": {
+      "API_TIMEOUT_MS": "3000000",
+      "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+      "CC_HUST_SEND_DISABLED_THINKING": "1"
+    },
+    "modelContextWindows": {
+      "Qwen3-32B": 32768,
+      "Qwen3-8B": 32768
     }
   },
   {

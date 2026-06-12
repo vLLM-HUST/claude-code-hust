@@ -6,25 +6,25 @@ const { startMock, statusMock, logoutMock } = vi.hoisted(() => ({
   logoutMock: vi.fn(),
 }))
 
-vi.mock('../api/hahaOAuth', () => ({
-  hahaOAuthApi: {
+vi.mock('../api/hustOAuth', () => ({
+  hustOAuthApi: {
     start: startMock,
     status: statusMock,
     logout: logoutMock,
   },
 }))
 
-import { useHahaOAuthStore } from './hahaOAuthStore'
+import { useHustOAuthStore } from './hustOAuthStore'
 
-const initialState = useHahaOAuthStore.getState()
+const initialState = useHustOAuthStore.getState()
 
-describe('hahaOAuthStore', () => {
+describe('hustOAuthStore', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     startMock.mockReset()
     statusMock.mockReset()
     logoutMock.mockReset()
-    useHahaOAuthStore.setState({
+    useHustOAuthStore.setState({
       ...initialState,
       status: null,
       isPolling: false,
@@ -34,21 +34,21 @@ describe('hahaOAuthStore', () => {
   })
 
   afterEach(() => {
-    useHahaOAuthStore.getState().stopPolling()
-    useHahaOAuthStore.setState(initialState)
+    useHustOAuthStore.getState().stopPolling()
+    useHustOAuthStore.setState(initialState)
     vi.useRealTimers()
   })
 
   it('login does not start polling until the browser launch succeeds', async () => {
     startMock.mockResolvedValue({
-      authorizeUrl: 'http://localhost:3456/api/haha-oauth/callback',
+      authorizeUrl: 'http://localhost:3456/api/hust-oauth/callback',
       state: 'state-123',
     })
 
-    const result = await useHahaOAuthStore.getState().login()
+    const result = await useHustOAuthStore.getState().login()
 
-    expect(result.authorizeUrl).toContain('/api/haha-oauth/callback')
-    expect(useHahaOAuthStore.getState().isPolling).toBe(false)
+    expect(result.authorizeUrl).toContain('/api/hust-oauth/callback')
+    expect(useHustOAuthStore.getState().isPolling).toBe(false)
   })
 
   it('startPolling stops after the status becomes logged in', async () => {
@@ -61,17 +61,17 @@ describe('hahaOAuthStore', () => {
         subscriptionType: 'max',
       })
 
-    useHahaOAuthStore.getState().startPolling()
-    expect(useHahaOAuthStore.getState().isPolling).toBe(true)
+    useHustOAuthStore.getState().startPolling()
+    expect(useHustOAuthStore.getState().isPolling).toBe(true)
 
     await vi.advanceTimersByTimeAsync(2_000)
-    expect(useHahaOAuthStore.getState().isPolling).toBe(true)
+    expect(useHustOAuthStore.getState().isPolling).toBe(true)
 
     await vi.advanceTimersByTimeAsync(2_000)
-    expect(useHahaOAuthStore.getState().status).toMatchObject({
+    expect(useHustOAuthStore.getState().status).toMatchObject({
       loggedIn: true,
       subscriptionType: 'max',
     })
-    expect(useHahaOAuthStore.getState().isPolling).toBe(false)
+    expect(useHustOAuthStore.getState().isPolling).toBe(false)
   })
 })

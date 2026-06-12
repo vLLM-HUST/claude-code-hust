@@ -4,8 +4,8 @@ import '@testing-library/jest-dom'
 
 import { ModelSelector } from './ModelSelector'
 import { useChatStore } from '../../stores/chatStore'
-import { useHahaOAuthStore } from '../../stores/hahaOAuthStore'
-import { useHahaOpenAIOAuthStore } from '../../stores/hahaOpenAIOAuthStore'
+import { useHustOAuthStore } from '../../stores/hustOAuthStore'
+import { useHustOpenAIOAuthStore } from '../../stores/hustOpenAIOAuthStore'
 import { useProviderStore } from '../../stores/providerStore'
 import { useSessionRuntimeStore } from '../../stores/sessionRuntimeStore'
 import { useSettingsStore } from '../../stores/settingsStore'
@@ -30,21 +30,21 @@ afterEach(() => {
   useProviderStore.setState(useProviderStore.getInitialState(), true)
   useSessionRuntimeStore.setState(useSessionRuntimeStore.getInitialState(), true)
   useChatStore.setState(useChatStore.getInitialState(), true)
-  useHahaOAuthStore.setState(useHahaOAuthStore.getInitialState(), true)
-  useHahaOpenAIOAuthStore.setState(useHahaOpenAIOAuthStore.getInitialState(), true)
+  useHustOAuthStore.setState(useHustOAuthStore.getInitialState(), true)
+  useHustOpenAIOAuthStore.setState(useHustOpenAIOAuthStore.getInitialState(), true)
 })
 
 beforeEach(() => {
-  useHahaOAuthStore.setState({ fetchStatus: async () => {} })
-  useHahaOpenAIOAuthStore.setState({ fetchStatus: async () => {} })
+  useHustOAuthStore.setState({ fetchStatus: async () => {} })
+  useHustOpenAIOAuthStore.setState({ fetchStatus: async () => {} })
 })
 
 describe('ModelSelector', () => {
   it('does not query official OAuth status when mounted', () => {
     const fetchClaudeStatus = vi.fn(async () => {})
     const fetchOpenAIStatus = vi.fn(async () => {})
-    useHahaOAuthStore.setState({ fetchStatus: fetchClaudeStatus })
-    useHahaOpenAIOAuthStore.setState({ fetchStatus: fetchOpenAIStatus })
+    useHustOAuthStore.setState({ fetchStatus: fetchClaudeStatus })
+    useHustOpenAIOAuthStore.setState({ fetchStatus: fetchOpenAIStatus })
     useSettingsStore.setState({
       locale: 'en',
       availableModels: MODELS,
@@ -67,8 +67,8 @@ describe('ModelSelector', () => {
   it('queries official OAuth status once when the runtime dropdown is opened', async () => {
     const fetchClaudeStatus = vi.fn(async () => {})
     const fetchOpenAIStatus = vi.fn(async () => {})
-    useHahaOAuthStore.setState({ fetchStatus: fetchClaudeStatus })
-    useHahaOpenAIOAuthStore.setState({ fetchStatus: fetchOpenAIStatus })
+    useHustOAuthStore.setState({ fetchStatus: fetchClaudeStatus })
+    useHustOpenAIOAuthStore.setState({ fetchStatus: fetchOpenAIStatus })
     useSettingsStore.setState({
       locale: 'en',
       availableModels: MODELS,
@@ -110,8 +110,8 @@ describe('ModelSelector', () => {
   it('does not query official OAuth status for plain model dropdowns', async () => {
     const fetchClaudeStatus = vi.fn(async () => {})
     const fetchOpenAIStatus = vi.fn(async () => {})
-    useHahaOAuthStore.setState({ fetchStatus: fetchClaudeStatus })
-    useHahaOpenAIOAuthStore.setState({ fetchStatus: fetchOpenAIStatus })
+    useHustOAuthStore.setState({ fetchStatus: fetchClaudeStatus })
+    useHustOpenAIOAuthStore.setState({ fetchStatus: fetchOpenAIStatus })
     useSettingsStore.setState({
       locale: 'en',
       availableModels: MODELS,
@@ -286,7 +286,7 @@ describe('ModelSelector', () => {
       },
     ]
     const setSessionRuntime = vi.fn()
-    useHahaOpenAIOAuthStore.setState({
+    useHustOpenAIOAuthStore.setState({
       status: { loggedIn: true, expiresAt: null, email: null, accountId: null },
       fetchStatus: async () => {},
     })
@@ -327,8 +327,8 @@ describe('ModelSelector', () => {
   })
 
   it('hides official provider sections when OAuth is not logged in', async () => {
-    useHahaOAuthStore.setState({ status: { loggedIn: false }, fetchStatus: async () => {} })
-    useHahaOpenAIOAuthStore.setState({ status: { loggedIn: false }, fetchStatus: async () => {} })
+    useHustOAuthStore.setState({ status: { loggedIn: false }, fetchStatus: async () => {} })
+    useHustOpenAIOAuthStore.setState({ status: { loggedIn: false }, fetchStatus: async () => {} })
     useSettingsStore.setState({
       locale: 'en',
       availableModels: MODELS,

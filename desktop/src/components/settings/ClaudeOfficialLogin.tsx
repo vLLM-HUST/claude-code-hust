@@ -2,10 +2,10 @@
 //
 // 显示当前 Claude Official OAuth 登录状态,提供 Login / Logout 按钮。
 // 点击 Login 调 desktop host shell.open 打开浏览器走 OAuth flow;浏览器回 callback
-// 到 haha server 后,store 的 polling 自动刷新 UI 展示"已登录"。
+// 到 hust server 后,store 的 polling 自动刷新 UI 展示"已登录"。
 
 import { useEffect } from 'react'
-import { useHahaOAuthStore } from '../../stores/hahaOAuthStore'
+import { useHustOAuthStore } from '../../stores/hustOAuthStore'
 import { useTranslation } from '../../i18n'
 import { getDesktopHost } from '../../lib/desktopHost'
 
@@ -20,7 +20,7 @@ export function ClaudeOfficialLogin() {
     logout,
     startPolling,
     stopPolling,
-  } = useHahaOAuthStore()
+  } = useHustOAuthStore()
 
   useEffect(() => {
     fetchStatus()
@@ -35,7 +35,7 @@ export function ClaudeOfficialLogin() {
         startPolling()
       } catch (err) {
         console.error('[ClaudeOfficialLogin] shellOpen failed:', err)
-        useHahaOAuthStore.setState({
+        useHustOAuthStore.setState({
           error: t('settings.claudeOfficialLogin.openBrowserFailed'),
         })
       }

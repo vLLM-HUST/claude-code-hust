@@ -15,7 +15,7 @@ describe('settingsStore locale defaults', () => {
   })
 
   it('keeps a stored locale override', async () => {
-    window.localStorage.setItem('cc-haha-locale', 'en')
+    window.localStorage.setItem('cc-hust-locale', 'en')
 
     const { useSettingsStore } = await import('./settingsStore')
 
@@ -33,7 +33,7 @@ describe('settingsStore UI zoom', () => {
   })
 
   it('hydrates from the app zoom storage key', async () => {
-    window.localStorage.setItem('cc-haha-app-zoom', '1.25')
+    window.localStorage.setItem('cc-hust-app-zoom', '1.25')
 
     const { useSettingsStore } = await import('./settingsStore')
 
@@ -46,7 +46,7 @@ describe('settingsStore UI zoom', () => {
     useSettingsStore.getState().setUiZoom(1.25)
 
     await vi.waitFor(() => {
-      expect(window.localStorage.getItem('cc-haha-app-zoom')).toBe('1.25')
+      expect(window.localStorage.getItem('cc-hust-app-zoom')).toBe('1.25')
     })
     expect(useSettingsStore.getState().uiZoom).toBe(1.25)
     expect(document.documentElement.getAttribute('data-app-zoom-percent')).toBe('125')
@@ -58,7 +58,7 @@ describe('settingsStore UI zoom', () => {
     useSettingsStore.getState().setUiZoom(9)
 
     await vi.waitFor(() => {
-      expect(window.localStorage.getItem('cc-haha-app-zoom')).toBe('2')
+      expect(window.localStorage.getItem('cc-hust-app-zoom')).toBe('2')
     })
     expect(useSettingsStore.getState().uiZoom).toBe(2)
   })
@@ -360,8 +360,8 @@ describe('settingsStore app mode', () => {
   it('hydrates app mode from the Electron desktop host', async () => {
     const getAppMode = vi.fn().mockResolvedValue({
       mode: 'portable',
-      portableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
-      defaultPortableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
+      portableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
+      defaultPortableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
     })
     installElectronAppModeHost({ get: getAppMode })
 
@@ -372,16 +372,16 @@ describe('settingsStore app mode', () => {
     expect(getAppMode).toHaveBeenCalledTimes(1)
     expect(useSettingsStore.getState().appMode).toEqual({
       mode: 'portable',
-      portableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
-      defaultPortableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
+      portableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
+      defaultPortableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
     })
   })
 
   it('hydrates app mode from an injected desktop host', async () => {
     const getAppMode = vi.fn().mockResolvedValue({
       mode: 'portable',
-      portableDir: 'D:\\cc-haha\\data',
-      defaultPortableDir: 'D:\\cc-haha\\data',
+      portableDir: 'D:\\cc-hust\\data',
+      defaultPortableDir: 'D:\\cc-hust\\data',
     })
     installElectronAppModeHost({ get: getAppMode })
 
@@ -392,8 +392,8 @@ describe('settingsStore app mode', () => {
     expect(getAppMode).toHaveBeenCalledTimes(1)
     expect(useSettingsStore.getState().appMode).toEqual({
       mode: 'portable',
-      portableDir: 'D:\\cc-haha\\data',
-      defaultPortableDir: 'D:\\cc-haha\\data',
+      portableDir: 'D:\\cc-hust\\data',
+      defaultPortableDir: 'D:\\cc-hust\\data',
     })
   })
 
@@ -406,7 +406,7 @@ describe('settingsStore app mode', () => {
       appMode: {
         mode: 'default',
         portableDir: null,
-        defaultPortableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
+        defaultPortableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
       },
       appModeRequiresRestart: false,
     })
@@ -415,13 +415,13 @@ describe('settingsStore app mode', () => {
 
     expect(setAppMode).toHaveBeenCalledWith({
       mode: 'portable',
-      portableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
+      portableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
     })
     expect(useSettingsStore.getState().appMode).toEqual({
       mode: 'portable',
-      portableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
-      defaultPortableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
-      activeConfigDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
+      portableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
+      defaultPortableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
+      activeConfigDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
       configDirSource: 'portable',
     })
     expect(useSettingsStore.getState().appModeRequiresRestart).toBe(true)
@@ -436,7 +436,7 @@ describe('settingsStore app mode', () => {
       appMode: {
         mode: 'default',
         portableDir: null,
-        defaultPortableDir: 'D:\\cc-haha\\data',
+        defaultPortableDir: 'D:\\cc-hust\\data',
       },
       appModeRequiresRestart: false,
     })
@@ -445,7 +445,7 @@ describe('settingsStore app mode', () => {
 
     expect(setAppMode).toHaveBeenCalledWith({
       mode: 'portable',
-      portableDir: 'D:\\cc-haha\\data',
+      portableDir: 'D:\\cc-hust\\data',
     })
     expect(useSettingsStore.getState().appModeRequiresRestart).toBe(true)
   })
@@ -459,7 +459,7 @@ describe('settingsStore app mode', () => {
       appMode: {
         mode: 'default',
         portableDir: null,
-        defaultPortableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
+        defaultPortableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
       },
       appModeRequiresRestart: false,
     })
@@ -487,7 +487,7 @@ describe('settingsStore app mode', () => {
       appMode: {
         mode: 'portable',
         portableDir: 'D:\\portable-data',
-        defaultPortableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
+        defaultPortableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
         activeConfigDir: 'D:\\portable-data',
         configDirSource: 'portable',
       },
@@ -503,7 +503,7 @@ describe('settingsStore app mode', () => {
     expect(useSettingsStore.getState().appMode).toEqual({
       mode: 'default',
       portableDir: null,
-      defaultPortableDir: 'C:\\cc-haha\\CLAUDE_CONFIG_DIR',
+      defaultPortableDir: 'C:\\cc-hust\\CLAUDE_CONFIG_DIR',
       activeConfigDir: null,
       configDirSource: 'system',
     })

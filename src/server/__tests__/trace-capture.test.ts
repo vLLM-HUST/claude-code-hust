@@ -379,7 +379,7 @@ describe('trace capture service', () => {
   })
 
   test('skips malformed trace jsonl entries when reading a session', async () => {
-    const traceDir = path.join(tmpDir, 'cc-haha', 'traces')
+    const traceDir = path.join(tmpDir, 'cc-hust', 'traces')
     await fs.mkdir(traceDir, { recursive: true })
     await fs.writeFile(path.join(traceDir, 'session-corrupt.jsonl'), [
       'not-json',
@@ -496,7 +496,7 @@ describe('trace capture service', () => {
       },
     })
     const trace = await traceCaptureService.getSessionTrace('session-trace-disabled')
-    const settingsFile = JSON.parse(await fs.readFile(path.join(tmpDir, 'cc-haha', 'settings.json'), 'utf-8')) as {
+    const settingsFile = JSON.parse(await fs.readFile(path.join(tmpDir, 'cc-hust', 'settings.json'), 'utf-8')) as {
       traceCapture?: { enabled?: boolean }
     }
 
@@ -507,14 +507,14 @@ describe('trace capture service', () => {
 
   test('captures direct Anthropic-compatible provider calls from desktop fetch override', async () => {
     const originalFetch = globalThis.fetch
-    const originalTraceEnv = process.env.CC_HAHA_TRACE_API_CALLS
-    const originalProviderId = process.env.CC_HAHA_TRACE_PROVIDER_ID
-    const originalProviderName = process.env.CC_HAHA_TRACE_PROVIDER_NAME
-    const originalProviderFormat = process.env.CC_HAHA_TRACE_PROVIDER_FORMAT
-    process.env.CC_HAHA_TRACE_API_CALLS = '1'
-    process.env.CC_HAHA_TRACE_PROVIDER_ID = 'provider-sub2api'
-    process.env.CC_HAHA_TRACE_PROVIDER_NAME = 'Sub2API-ChatGPT'
-    process.env.CC_HAHA_TRACE_PROVIDER_FORMAT = 'anthropic'
+    const originalTraceEnv = process.env.CC_HUST_TRACE_API_CALLS
+    const originalProviderId = process.env.CC_HUST_TRACE_PROVIDER_ID
+    const originalProviderName = process.env.CC_HUST_TRACE_PROVIDER_NAME
+    const originalProviderFormat = process.env.CC_HUST_TRACE_PROVIDER_FORMAT
+    process.env.CC_HUST_TRACE_API_CALLS = '1'
+    process.env.CC_HUST_TRACE_PROVIDER_ID = 'provider-sub2api'
+    process.env.CC_HUST_TRACE_PROVIDER_NAME = 'Sub2API-ChatGPT'
+    process.env.CC_HUST_TRACE_PROVIDER_FORMAT = 'anthropic'
     try {
       globalThis.fetch = (async () => new Response(
         JSON.stringify({ id: 'msg-direct-trace', content: [{ type: 'text', text: 'ok' }] }),
@@ -553,21 +553,21 @@ describe('trace capture service', () => {
       expect(trace.events.map((event) => event.phase)).toEqual(['api_call_started', 'api_call_completed'])
     } finally {
       globalThis.fetch = originalFetch
-      if (originalTraceEnv === undefined) delete process.env.CC_HAHA_TRACE_API_CALLS
-      else process.env.CC_HAHA_TRACE_API_CALLS = originalTraceEnv
-      if (originalProviderId === undefined) delete process.env.CC_HAHA_TRACE_PROVIDER_ID
-      else process.env.CC_HAHA_TRACE_PROVIDER_ID = originalProviderId
-      if (originalProviderName === undefined) delete process.env.CC_HAHA_TRACE_PROVIDER_NAME
-      else process.env.CC_HAHA_TRACE_PROVIDER_NAME = originalProviderName
-      if (originalProviderFormat === undefined) delete process.env.CC_HAHA_TRACE_PROVIDER_FORMAT
-      else process.env.CC_HAHA_TRACE_PROVIDER_FORMAT = originalProviderFormat
+      if (originalTraceEnv === undefined) delete process.env.CC_HUST_TRACE_API_CALLS
+      else process.env.CC_HUST_TRACE_API_CALLS = originalTraceEnv
+      if (originalProviderId === undefined) delete process.env.CC_HUST_TRACE_PROVIDER_ID
+      else process.env.CC_HUST_TRACE_PROVIDER_ID = originalProviderId
+      if (originalProviderName === undefined) delete process.env.CC_HUST_TRACE_PROVIDER_NAME
+      else process.env.CC_HUST_TRACE_PROVIDER_NAME = originalProviderName
+      if (originalProviderFormat === undefined) delete process.env.CC_HUST_TRACE_PROVIDER_FORMAT
+      else process.env.CC_HUST_TRACE_PROVIDER_FORMAT = originalProviderFormat
     }
   })
 
   test('captures direct provider fetch failures without changing thrown behavior', async () => {
     const originalFetch = globalThis.fetch
-    const originalTraceEnv = process.env.CC_HAHA_TRACE_API_CALLS
-    process.env.CC_HAHA_TRACE_API_CALLS = '1'
+    const originalTraceEnv = process.env.CC_HUST_TRACE_API_CALLS
+    process.env.CC_HUST_TRACE_API_CALLS = '1'
     try {
       globalThis.fetch = (async () => {
         throw new Error('network down for trace')
@@ -601,16 +601,16 @@ describe('trace capture service', () => {
       expect(trace.events.map((event) => event.phase)).toEqual(['api_call_started', 'api_call_failed'])
     } finally {
       globalThis.fetch = originalFetch
-      if (originalTraceEnv === undefined) delete process.env.CC_HAHA_TRACE_API_CALLS
-      else process.env.CC_HAHA_TRACE_API_CALLS = originalTraceEnv
+      if (originalTraceEnv === undefined) delete process.env.CC_HUST_TRACE_API_CALLS
+      else process.env.CC_HUST_TRACE_API_CALLS = originalTraceEnv
     }
   })
 
   test('passes session id to local provider proxy without duplicating client-side trace', async () => {
     const originalFetch = globalThis.fetch
-    const originalTraceEnv = process.env.CC_HAHA_TRACE_API_CALLS
+    const originalTraceEnv = process.env.CC_HUST_TRACE_API_CALLS
     let seenHeader: string | null = null
-    process.env.CC_HAHA_TRACE_API_CALLS = '1'
+    process.env.CC_HUST_TRACE_API_CALLS = '1'
     try {
       globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
         seenHeader = new Headers(init?.headers).get('x-claude-code-session-id')
@@ -634,8 +634,8 @@ describe('trace capture service', () => {
       expect(trace.summary.apiCalls).toBe(0)
     } finally {
       globalThis.fetch = originalFetch
-      if (originalTraceEnv === undefined) delete process.env.CC_HAHA_TRACE_API_CALLS
-      else process.env.CC_HAHA_TRACE_API_CALLS = originalTraceEnv
+      if (originalTraceEnv === undefined) delete process.env.CC_HUST_TRACE_API_CALLS
+      else process.env.CC_HUST_TRACE_API_CALLS = originalTraceEnv
     }
   })
 })
@@ -800,10 +800,10 @@ describe('session trace API', () => {
     expect(body.traces[0].sessionId).toBe('session-list-trace')
     expect(body.traces[0].summary.apiCalls).toBe(1)
     expect(body.traces[0].fileSize).toBeGreaterThan(0)
-    expect(body.storageDir).toBe(path.join(tmpDir, 'cc-haha', 'traces'))
+    expect(body.storageDir).toBe(path.join(tmpDir, 'cc-hust', 'traces'))
     expect(body.settings).toEqual({
       enabled: true,
-      storageDir: path.join(tmpDir, 'cc-haha', 'traces'),
+      storageDir: path.join(tmpDir, 'cc-hust', 'traces'),
     })
   })
 
@@ -945,7 +945,7 @@ describe('trace read cache', () => {
   }
 
   test('serves cached entries while file mtime and size are unchanged', async () => {
-    const traceDir = path.join(tmpDir, 'cc-haha', 'traces')
+    const traceDir = path.join(tmpDir, 'cc-hust', 'traces')
     const filePath = path.join(traceDir, 'session-cache-hit.jsonl')
     await fs.mkdir(traceDir, { recursive: true })
 
@@ -975,7 +975,7 @@ describe('trace read cache', () => {
   })
 
   test('stores trimmed records in the list cache and keeps full records for detail reads', async () => {
-    const traceDir = path.join(tmpDir, 'cc-haha', 'traces')
+    const traceDir = path.join(tmpDir, 'cc-hust', 'traces')
     const filePath = path.join(traceDir, 'session-cache-list.jsonl')
     await fs.mkdir(traceDir, { recursive: true })
     await fs.writeFile(filePath, buildTraceCallLine('call-list-cache', 'session-cache-list', 'x'.repeat(10_000)))

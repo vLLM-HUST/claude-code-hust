@@ -81,7 +81,7 @@ describe('release desktop workflow', () => {
     }
 
     expect(desktopPackage.description).toBeTruthy()
-    expect(desktopPackage.homepage).toBe('https://github.com/NanmiCoder/cc-haha')
+    expect(desktopPackage.homepage).toBe('https://github.com/NanmiCoder/cc-hust')
     expect(desktopPackage.author?.name).toBe('NanmiCoder')
     expect(desktopPackage.author?.email).toBe('relakkes@gmail.com')
     expect(desktopPackage.build?.linux?.maintainer).toBe('NanmiCoder <relakkes@gmail.com>')
@@ -211,23 +211,23 @@ describe('release desktop workflow', () => {
       }
     }
     const version = desktopPackage.version
-    expect(desktopPackage.build.artifactName).toBe('Claude-Code-Haha-${version}-${os}-${arch}.${ext}')
+    expect(desktopPackage.build.artifactName).toBe('Claude-Code-Hust-${version}-${os}-${arch}.${ext}')
 
     const expectedReleaseAssets = [
-      `Claude-Code-Haha-${version}-mac-arm64.dmg`,
-      `Claude-Code-Haha-${version}-mac-arm64.dmg.blockmap`,
-      `Claude-Code-Haha-${version}-mac-arm64.zip`,
-      `Claude-Code-Haha-${version}-mac-arm64.zip.blockmap`,
-      `Claude-Code-Haha-${version}-mac-x64.dmg`,
-      `Claude-Code-Haha-${version}-mac-x64.dmg.blockmap`,
-      `Claude-Code-Haha-${version}-mac-x64.zip`,
-      `Claude-Code-Haha-${version}-mac-x64.zip.blockmap`,
-      `Claude-Code-Haha-${version}-linux-x86_64.AppImage`,
-      `Claude-Code-Haha-${version}-linux-amd64.deb`,
-      `Claude-Code-Haha-${version}-linux-arm64.AppImage`,
-      `Claude-Code-Haha-${version}-linux-arm64.deb`,
-      `Claude-Code-Haha-${version}-win-x64.exe`,
-      `Claude-Code-Haha-${version}-win-x64.exe.blockmap`,
+      `Claude-Code-Hust-${version}-mac-arm64.dmg`,
+      `Claude-Code-Hust-${version}-mac-arm64.dmg.blockmap`,
+      `Claude-Code-Hust-${version}-mac-arm64.zip`,
+      `Claude-Code-Hust-${version}-mac-arm64.zip.blockmap`,
+      `Claude-Code-Hust-${version}-mac-x64.dmg`,
+      `Claude-Code-Hust-${version}-mac-x64.dmg.blockmap`,
+      `Claude-Code-Hust-${version}-mac-x64.zip`,
+      `Claude-Code-Hust-${version}-mac-x64.zip.blockmap`,
+      `Claude-Code-Hust-${version}-linux-x86_64.AppImage`,
+      `Claude-Code-Hust-${version}-linux-amd64.deb`,
+      `Claude-Code-Hust-${version}-linux-arm64.AppImage`,
+      `Claude-Code-Hust-${version}-linux-arm64.deb`,
+      `Claude-Code-Hust-${version}-win-x64.exe`,
+      `Claude-Code-Hust-${version}-win-x64.exe.blockmap`,
     ]
     const namespacedMetadata = [
       'latest-mac-macOS-ARM64.yml',
@@ -271,15 +271,15 @@ describe('release desktop workflow', () => {
     const buildJob = extractJob(workflow, 'build')
     const publishJob = extractJob(workflow, 'publish-release')
     const expectedFiles = [
-      'Claude-Code-Haha-${APP_VERSION}-mac-arm64.dmg',
-      'Claude-Code-Haha-${APP_VERSION}-mac-arm64.zip',
-      'Claude-Code-Haha-${APP_VERSION}-mac-x64.dmg',
-      'Claude-Code-Haha-${APP_VERSION}-mac-x64.zip',
-      'Claude-Code-Haha-${APP_VERSION}-linux-x86_64.AppImage',
-      'Claude-Code-Haha-${APP_VERSION}-linux-amd64.deb',
-      'Claude-Code-Haha-${APP_VERSION}-linux-arm64.AppImage',
-      'Claude-Code-Haha-${APP_VERSION}-linux-arm64.deb',
-      'Claude-Code-Haha-${APP_VERSION}-win-x64.exe',
+      'Claude-Code-Hust-${APP_VERSION}-mac-arm64.dmg',
+      'Claude-Code-Hust-${APP_VERSION}-mac-arm64.zip',
+      'Claude-Code-Hust-${APP_VERSION}-mac-x64.dmg',
+      'Claude-Code-Hust-${APP_VERSION}-mac-x64.zip',
+      'Claude-Code-Hust-${APP_VERSION}-linux-x86_64.AppImage',
+      'Claude-Code-Hust-${APP_VERSION}-linux-amd64.deb',
+      'Claude-Code-Hust-${APP_VERSION}-linux-arm64.AppImage',
+      'Claude-Code-Hust-${APP_VERSION}-linux-arm64.deb',
+      'Claude-Code-Hust-${APP_VERSION}-win-x64.exe',
     ]
 
     for (const file of expectedFiles) {
@@ -312,7 +312,7 @@ describe('release desktop workflow', () => {
       {
         provider: 'github',
         owner: 'NanmiCoder',
-        repo: 'cc-haha',
+        repo: 'cc-hust',
       },
     ])
     expect(desktopPackage.build.mac?.publish).toBeUndefined()

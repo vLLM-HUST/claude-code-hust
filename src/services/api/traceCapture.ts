@@ -194,20 +194,20 @@ const traceWriteQueues = new Map<string, Promise<void>>()
 const traceReadCache = new Map<string, TraceReadCacheEntry>()
 
 export function shouldCaptureApiTrace(): boolean {
-  if (isEnvDefinedFalsy(process.env.CC_HAHA_TRACE_API_CALLS)) return false
-  if (isEnvTruthy(process.env.CC_HAHA_TRACE_API_CALLS)) return true
+  if (isEnvDefinedFalsy(process.env.CC_HUST_TRACE_API_CALLS)) return false
+  if (isEnvTruthy(process.env.CC_HUST_TRACE_API_CALLS)) return true
   return readTraceCaptureSettingsSync().enabled &&
     process.env.CLAUDE_CODE_ENTRYPOINT === 'claude-desktop'
 }
 
 export function isTraceCaptureEnabled(): boolean {
-  if (isEnvDefinedFalsy(process.env.CC_HAHA_TRACE_API_CALLS)) return false
-  if (isEnvTruthy(process.env.CC_HAHA_TRACE_API_CALLS)) return true
+  if (isEnvDefinedFalsy(process.env.CC_HUST_TRACE_API_CALLS)) return false
+  if (isEnvTruthy(process.env.CC_HUST_TRACE_API_CALLS)) return true
   return readTraceCaptureSettingsSync().enabled
 }
 
 export function getTraceStorageDir(): string {
-  return join(getClaudeConfigHomeDir(), 'cc-haha', 'traces')
+  return join(getClaudeConfigHomeDir(), 'cc-hust', 'traces')
 }
 
 export function readTraceCaptureSettingsSync(): TraceCaptureSettings {
@@ -911,7 +911,7 @@ function sanitizeTraceFileName(sessionId: string): string {
 }
 
 function getManagedSettingsPath(): string {
-  return join(getClaudeConfigHomeDir(), 'cc-haha', 'settings.json')
+  return join(getClaudeConfigHomeDir(), 'cc-hust', 'settings.json')
 }
 
 function defaultTraceCaptureSettings(): TraceCaptureSettings {

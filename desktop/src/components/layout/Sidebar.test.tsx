@@ -113,11 +113,11 @@ import { useTabStore } from '../../stores/tabStore'
 import { useUIStore } from '../../stores/uiStore'
 import type { SessionListItem } from '../../types/session'
 
-const PROJECT_ORDER_STORAGE_KEY = 'cc-haha-sidebar-project-order'
-const PROJECT_PINNED_STORAGE_KEY = 'cc-haha-sidebar-pinned-projects'
-const PROJECT_HIDDEN_STORAGE_KEY = 'cc-haha-sidebar-hidden-projects'
-const PROJECT_ORGANIZATION_STORAGE_KEY = 'cc-haha-sidebar-project-organization'
-const PROJECT_SORT_STORAGE_KEY = 'cc-haha-sidebar-project-sort'
+const PROJECT_ORDER_STORAGE_KEY = 'cc-hust-sidebar-project-order'
+const PROJECT_PINNED_STORAGE_KEY = 'cc-hust-sidebar-pinned-projects'
+const PROJECT_HIDDEN_STORAGE_KEY = 'cc-hust-sidebar-hidden-projects'
+const PROJECT_ORGANIZATION_STORAGE_KEY = 'cc-hust-sidebar-project-organization'
+const PROJECT_SORT_STORAGE_KEY = 'cc-hust-sidebar-project-sort'
 
 function makeSession(
   id: string,
@@ -810,7 +810,7 @@ describe('Sidebar', () => {
     const now = new Date().toISOString()
     useSessionStore.setState({
       sessions: [
-        makeSession('child-1', 'Child Session', 'D:\\workspace\\code\\cc-haha', now),
+        makeSession('child-1', 'Child Session', 'D:\\workspace\\code\\cc-hust', now),
       ],
     })
     useTabStore.setState({
@@ -825,7 +825,7 @@ describe('Sidebar', () => {
     })
 
     await waitFor(() => {
-      expect(createSession).toHaveBeenCalledWith('D:\\workspace\\code\\cc-haha')
+      expect(createSession).toHaveBeenCalledWith('D:\\workspace\\code\\cc-hust')
     })
     expect(JSON.parse(window.localStorage.getItem(PROJECT_HIDDEN_STORAGE_KEY) ?? '[]')).toEqual(['D:\\'])
     expect(desktopUiPreferencesApiMock.updateSidebarPreferences).not.toHaveBeenCalled()

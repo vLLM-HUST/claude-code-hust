@@ -13,8 +13,8 @@ import { teamWatcher } from './services/teamWatcher.js'
 import { cronScheduler } from './services/cronScheduler.js'
 import { handleProxyRequest } from './proxy/handler.js'
 import { ProviderService } from './services/providerService.js'
-import { handleHahaOAuthCallback } from './api/haha-oauth.js'
-import { handleHahaOpenAIOAuthCallback } from './api/haha-openai-oauth.js'
+import { handleHustOAuthCallback } from './api/hust-oauth.js'
+import { handleHustOpenAIOAuthCallback } from './api/hust-openai-oauth.js'
 import { handlePreviewFs } from './api/previewFs.js'
 import { handleLocalFile } from './api/localFile.js'
 import { sessionService } from './services/sessionService.js'
@@ -274,14 +274,14 @@ export function startServer(port = PORT, host = HOST) {
         }
 
         if (url.pathname === '/callback') {
-          return handleHahaOAuthCallback(url)
+          return handleHustOAuthCallback(url)
         }
 
         if (
           url.pathname === OPENAI_CODEX_REDIRECT_PATH ||
           url.pathname === '/callback/openai'
         ) {
-          return handleHahaOpenAIOAuthCallback(url)
+          return handleHustOpenAIOAuthCallback(url)
         }
 
         // Preview filesystem — serve sandboxed workspace files for a session.

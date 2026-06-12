@@ -980,7 +980,7 @@ function ProviderFormModal({ open, onClose, mode, provider, presets }: ProviderF
     const parsedModelContextWindows = buildModelContextWindows(models, modelContextInputs)
     setIsSubmitting(true)
     try {
-      // Write the edited cc-haha settings.json first so provider-specific model
+      // Write the edited cc-hust settings.json first so provider-specific model
       // settings never conflict with the user's global ~/.claude/settings.json.
       if (settingsJson.trim()) {
         try {
@@ -3668,7 +3668,7 @@ function PluginSettings() {
 
 // ─── About Settings ──────────────────────────────────────
 
-const GITHUB_REPO = 'https://github.com/NanmiCoder/cc-haha'
+const GITHUB_REPO = 'https://github.com/NanmiCoder/cc-hust'
 const GITHUB_ISSUES = `${GITHUB_REPO}/issues`
 const GITHUB_RELEASES = `${GITHUB_REPO}/releases`
 const AUTHOR_GITHUB = 'https://github.com/NanmiCoder'
@@ -3810,8 +3810,8 @@ function AboutSettings() {
   return (
     <div className="w-full min-w-0 max-w-lg mx-auto flex flex-col items-center py-6">
       {/* Logo + App Name + Version */}
-      <img src={publicAssetPath('app-icon.png')} alt="Claude Code Haha" className="w-20 h-20 mb-4" />
-      <h1 className="text-xl font-bold text-[var(--color-text-primary)]">Claude Code Haha</h1>
+      <img src={publicAssetPath('app-icon.png')} alt="Claude Code Hust" className="w-20 h-20 mb-4" />
+      <h1 className="text-xl font-bold text-[var(--color-text-primary)]">Claude Code Hust</h1>
       {version && (
         <div className="mt-1 flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
           <span>{t('settings.about.version')} {version}</span>
@@ -3833,7 +3833,7 @@ function AboutSettings() {
         >
           <img src={publicAssetPath('icons/github.svg')} alt="GitHub" className="w-5 h-5 opacity-70" />
           <div className="flex-1 text-left">
-            <div className="text-sm font-medium text-[var(--color-text-primary)]">NanmiCoder/cc-haha</div>
+            <div className="text-sm font-medium text-[var(--color-text-primary)]">NanmiCoder/cc-hust</div>
             <div className="text-xs text-[var(--color-text-tertiary)]">{t('settings.about.starHint')}</div>
           </div>
         </button>

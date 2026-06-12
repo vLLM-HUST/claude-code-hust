@@ -1,5 +1,5 @@
 /**
- * Integration tests for /api/haha-openai-oauth/* endpoints.
+ * Integration tests for /api/hust-openai-oauth/* endpoints.
  */
 
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
@@ -7,8 +7,8 @@ import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as os from 'os'
 import { createServer } from 'net'
-import { handleHahaOpenAIOAuthApi } from '../api/haha-openai-oauth.js'
-import { hahaOpenAIOAuthService } from '../services/hahaOpenAIOAuthService.js'
+import { handleHustOpenAIOAuthApi } from '../api/hust-openai-oauth.js'
+import { hustOpenAIOAuthService } from '../services/hustOpenAIOAuthService.js'
 import { startServer } from '../index.js'
 import { ProviderService } from '../services/providerService.js'
 
@@ -17,15 +17,15 @@ let originalConfigDir: string | undefined
 
 async function setup() {
   tmpDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), 'haha-openai-oauth-api-test-'),
+    path.join(os.tmpdir(), 'hust-openai-oauth-api-test-'),
   )
   originalConfigDir = process.env.CLAUDE_CONFIG_DIR
   process.env.CLAUDE_CONFIG_DIR = tmpDir
 }
 
 async function teardown() {
-  hahaOpenAIOAuthService.dispose()
-  hahaOpenAIOAuthService.resetCallbackPortForTests()
+  hustOpenAIOAuthService.dispose()
+  hustOpenAIOAuthService.resetCallbackPortForTests()
   if (originalConfigDir === undefined) {
     delete process.env.CLAUDE_CONFIG_DIR
   } else {
@@ -65,20 +65,20 @@ async function getFreePort(): Promise<number> {
   })
 }
 
-describe('POST /api/haha-openai-oauth/start', () => {
+describe('POST /api/hust-openai-oauth/start', () => {
   beforeEach(setup)
   afterEach(teardown)
 
   test('returns authorize URL with PKCE challenge', async () => {
     const callbackPort = await getFreePort()
-    hahaOpenAIOAuthService.setCallbackPortForTests(callbackPort)
+    hustOpenAIOAuthService.setCallbackPortForTests(callbackPort)
 
     const { req, url, segments } = buildReq(
       'POST',
-      '/api/haha-openai-oauth/start',
+      '/api/hust-openai-oauth/start',
       { serverPort: 54321 },
     )
-    const res = await handleHahaOpenAIOAuthApi(req, url, segments)
+    const res = await handleHustOpenAIOAuthApi(req, url, segments)
     expect(res.status).toBe(200)
     const data = (await res.json()) as { authorizeUrl: string; state: string }
     expect(data.authorizeUrl).toContain('code_challenge_method=S256')
@@ -98,30 +98,30 @@ describe('POST /api/haha-openai-oauth/start', () => {
   test('400 if serverPort missing', async () => {
     const { req, url, segments } = buildReq(
       'POST',
-      '/api/haha-openai-oauth/start',
+      '/api/hust-openai-oauth/start',
       {},
     )
-    const res = await handleHahaOpenAIOAuthApi(req, url, segments)
+    const res = await handleHustOpenAIOAuthApi(req, url, segments)
     expect(res.status).toBe(400)
     const body = (await res.json()) as { error: string; message?: string }
     expect(body.error).toBe('BAD_REQUEST')
   })
 })
 
-describe('GET /api/haha-openai-oauth', () => {
+describe('GET /api/hust-openai-oauth', () => {
   beforeEach(setup)
   afterEach(teardown)
 
   test('returns loggedIn=false when no token file', async () => {
-    const { req, url, segments } = buildReq('GET', '/api/haha-openai-oauth')
-    const res = await handleHahaOpenAIOAuthApi(req, url, segments)
+    const { req, url, segments } = buildReq('GET', '/api/hust-openai-oauth')
+    const res = await handleHustOpenAIOAuthApi(req, url, segments)
     expect(res.status).toBe(200)
     const data = (await res.json()) as { loggedIn: boolean }
     expect(data.loggedIn).toBe(false)
   })
 
   test('returns loggedIn=true + metadata when token saved', async () => {
-    await hahaOpenAIOAuthService.saveTokens({
+    await hustOpenAIOAuthService.saveTokens({
       accessToken: 'openai-access-token-xxx',
       refreshToken: 'openai-refresh-token-xxx',
       expiresAt: Date.now() + 3600_000,
@@ -129,8 +129,8 @@ describe('GET /api/haha-openai-oauth', () => {
       accountId: 'acct_123',
     })
 
-    const { req, url, segments } = buildReq('GET', '/api/haha-openai-oauth')
-    const res = await handleHahaOpenAIOAuthApi(req, url, segments)
+    const { req, url, segments } = buildReq('GET', '/api/hust-openai-oauth')
+    const res = await handleHustOpenAIOAuthApi(req, url, segments)
     expect(res.status).toBe(200)
     const data = (await res.json()) as {
       loggedIn: boolean
@@ -147,31 +147,31 @@ describe('GET /api/haha-openai-oauth', () => {
   })
 
   test('returns loggedIn=false when stored token is expired and refresh fails', async () => {
-    await hahaOpenAIOAuthService.saveTokens({
+    await hustOpenAIOAuthService.saveTokens({
       accessToken: 'expired-token',
       refreshToken: 'revoked-refresh-token',
       expiresAt: Date.now() - 1_000,
       email: 'test@example.com',
       accountId: 'acct_123',
     })
-    hahaOpenAIOAuthService.setRefreshFn(async () => {
+    hustOpenAIOAuthService.setRefreshFn(async () => {
       throw new Error('refresh revoked')
     })
 
-    const { req, url, segments } = buildReq('GET', '/api/haha-openai-oauth')
-    const res = await handleHahaOpenAIOAuthApi(req, url, segments)
+    const { req, url, segments } = buildReq('GET', '/api/hust-openai-oauth')
+    const res = await handleHustOpenAIOAuthApi(req, url, segments)
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ loggedIn: false })
   })
 })
 
-describe('DELETE /api/haha-openai-oauth', () => {
+describe('DELETE /api/hust-openai-oauth', () => {
   beforeEach(setup)
   afterEach(teardown)
 
   test('clears token file', async () => {
-    await hahaOpenAIOAuthService.saveTokens({
+    await hustOpenAIOAuthService.saveTokens({
       accessToken: 'a',
       refreshToken: null,
       expiresAt: null,
@@ -179,10 +179,10 @@ describe('DELETE /api/haha-openai-oauth', () => {
       accountId: null,
     })
 
-    const { req, url, segments } = buildReq('DELETE', '/api/haha-openai-oauth')
-    const res = await handleHahaOpenAIOAuthApi(req, url, segments)
+    const { req, url, segments } = buildReq('DELETE', '/api/hust-openai-oauth')
+    const res = await handleHustOpenAIOAuthApi(req, url, segments)
     expect(res.status).toBe(200)
-    expect(await hahaOpenAIOAuthService.loadTokens()).toBeNull()
+    expect(await hustOpenAIOAuthService.loadTokens()).toBeNull()
   })
 })
 

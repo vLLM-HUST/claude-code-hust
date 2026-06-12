@@ -300,7 +300,7 @@ export function resolveCronProjectRoot(
   options: CronCliResolutionOptions = {},
 ): string {
   const env = options.env ?? process.env
-  const explicitRoot = env.CC_HAHA_ROOT?.trim()
+  const explicitRoot = env.CC_HUST_ROOT?.trim()
   if (explicitRoot && isSourceProjectRoot(path.resolve(explicitRoot))) {
     return path.resolve(explicitRoot)
   }
@@ -714,7 +714,7 @@ export class CronScheduler {
       CLAUDE_CODE_ENTRYPOINT: 'sdk-cli',
       CALLER_DIR: workDir,
       PWD: workDir,
-      CC_HAHA_SKIP_DOTENV: '1',
+      CC_HUST_SKIP_DOTENV: '1',
       ...(explicitProviderEnv
         ? {
             CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST: '1',
@@ -738,13 +738,13 @@ export class CronScheduler {
       return true
     }
 
-    const ccHahaDir = path.join(this.getConfigDir(), 'cc-haha')
-    if (existsSync(path.join(ccHahaDir, 'providers.json'))) {
+    const ccHustDir = path.join(this.getConfigDir(), 'cc-hust')
+    if (existsSync(path.join(ccHustDir, 'providers.json'))) {
       return true
     }
 
     try {
-      const raw = readFileSync(path.join(ccHahaDir, 'settings.json'), 'utf-8')
+      const raw = readFileSync(path.join(ccHustDir, 'settings.json'), 'utf-8')
       const parsed = JSON.parse(raw) as { env?: Record<string, string> }
       const env = parsed.env ?? {}
       return Object.entries(env).some(
@@ -768,7 +768,7 @@ export class CronScheduler {
 
     try {
       const raw = readFileSync(
-        path.join(this.getConfigDir(), 'cc-haha', 'settings.json'),
+        path.join(this.getConfigDir(), 'cc-hust', 'settings.json'),
         'utf-8',
       )
       const parsed = JSON.parse(raw) as { env?: Record<string, string> }
@@ -792,8 +792,8 @@ export class CronScheduler {
       CLAUDE_CODE_ENTRYPOINT: 'claude-desktop',
     }
     try {
-      const { hahaOAuthService } = await import('./hahaOAuthService.js')
-      const token = await hahaOAuthService.ensureFreshAccessToken()
+      const { hustOAuthService } = await import('./hustOAuthService.js')
+      const token = await hustOAuthService.ensureFreshAccessToken()
       if (token) {
         env.CLAUDE_CODE_OAUTH_TOKEN = token
       }

@@ -16,8 +16,8 @@ import type { RuntimeSelection } from '../../types/runtime'
 import type { EffortLevel, ModelInfo } from '../../types/settings'
 import { useMobileViewport } from '../../hooks/useMobileViewport'
 import { isDesktopRuntime } from '../../lib/desktopRuntime'
-import { useHahaOAuthStore } from '../../stores/hahaOAuthStore'
-import { useHahaOpenAIOAuthStore } from '../../stores/hahaOpenAIOAuthStore'
+import { useHustOAuthStore } from '../../stores/hustOAuthStore'
+import { useHustOpenAIOAuthStore } from '../../stores/hustOpenAIOAuthStore'
 import { MobileBottomSheet } from '../shared/MobileBottomSheet'
 
 type ProviderChoice = {
@@ -186,10 +186,10 @@ export function ModelSelector({
     isLoading: providersLoading,
     fetchProviders,
   } = useProviderStore()
-  const claudeOAuthStatus = useHahaOAuthStore((s) => s.status)
-  const fetchClaudeOAuthStatus = useHahaOAuthStore((s) => s.fetchStatus)
-  const openAIOAuthStatus = useHahaOpenAIOAuthStore((s) => s.status)
-  const fetchOpenAIOAuthStatus = useHahaOpenAIOAuthStore((s) => s.fetchStatus)
+  const claudeOAuthStatus = useHustOAuthStore((s) => s.status)
+  const fetchClaudeOAuthStatus = useHustOAuthStore((s) => s.fetchStatus)
+  const openAIOAuthStatus = useHustOpenAIOAuthStore((s) => s.status)
+  const fetchOpenAIOAuthStatus = useHustOpenAIOAuthStore((s) => s.fetchStatus)
   const runtimeSelection = useSessionRuntimeStore((state) =>
     runtimeKey ? state.selections[runtimeKey] : undefined,
   )

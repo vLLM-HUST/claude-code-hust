@@ -54,15 +54,17 @@ describe('provider presets API', () => {
     expect(PROVIDER_PRESETS.some((preset) => preset.id === 'custom')).toBe(true)
   })
 
-  test('local Anthropic-compatible presets appear immediately before custom', () => {
-    expect(PROVIDER_PRESETS.at(-3)?.id).toBe('lmstudio')
-    expect(PROVIDER_PRESETS.at(-2)?.id).toBe('ollama')
+  test('local inference presets appear immediately before custom', () => {
+    expect(PROVIDER_PRESETS.at(-4)?.id).toBe('lmstudio')
+    expect(PROVIDER_PRESETS.at(-3)?.id).toBe('ollama')
+    expect(PROVIDER_PRESETS.at(-2)?.id).toBe('vllm')
     expect(PROVIDER_PRESETS.at(-1)?.id).toBe('custom')
   })
 
   test('configured presets keep current default model ids aligned with official provider docs', () => {
     const lmstudio = PROVIDER_PRESETS.find((preset) => preset.id === 'lmstudio')
     const ollama = PROVIDER_PRESETS.find((preset) => preset.id === 'ollama')
+    const vllm = PROVIDER_PRESETS.find((preset) => preset.id === 'vllm')
     const deepseek = PROVIDER_PRESETS.find((preset) => preset.id === 'deepseek')
     const zhipu = PROVIDER_PRESETS.find((preset) => preset.id === 'zhipuglm')
     const kimi = PROVIDER_PRESETS.find((preset) => preset.id === 'kimi')
@@ -78,12 +80,16 @@ describe('provider presets API', () => {
     expect(ollama?.apiFormat).toBe('anthropic')
     expect(ollama?.authStrategy).toBe('auth_token_empty_api_key')
     expect(ollama?.defaultModels.main).toBe('qwen3.6:27b')
+    expect(vllm?.baseUrl).toBe('http://localhost:18000')
+    expect(vllm?.apiFormat).toBe('openai_chat')
+    expect(vllm?.authStrategy).toBe('auth_token_empty_api_key')
+    expect(vllm?.defaultModels.main).toBe('Qwen3-32B')
     expect(deepseek?.authStrategy).toBe('auth_token')
     expect(deepseek?.defaultModels.main).toBe('deepseek-v4-pro')
     expect(deepseek?.defaultModels.haiku).toBe('deepseek-v4-flash')
     expect(deepseek?.defaultModels.sonnet).toBe('deepseek-v4-pro')
     expect(deepseek?.defaultModels.opus).toBe('deepseek-v4-pro')
-    expect(deepseek?.defaultEnv?.CC_HAHA_SEND_DISABLED_THINKING).toBeUndefined()
+    expect(deepseek?.defaultEnv?.CC_HUST_SEND_DISABLED_THINKING).toBeUndefined()
     expect(deepseek?.defaultEnv?.ANTHROPIC_DEFAULT_SONNET_MODEL_SUPPORTED_CAPABILITIES).toBe(
       'thinking,effort,adaptive_thinking,max_effort',
     )
@@ -95,7 +101,7 @@ describe('provider presets API', () => {
     expect(kimi?.baseUrl).toBe('https://api.kimi.com/coding')
     expect(kimi?.authStrategy).toBe('auth_token')
     expect(kimi?.defaultModels.main).toBe('kimi-k2.6')
-    expect(kimi?.defaultEnv?.CC_HAHA_SEND_DISABLED_THINKING).toBe('1')
+    expect(kimi?.defaultEnv?.CC_HUST_SEND_DISABLED_THINKING).toBe('1')
     expect(minimax?.authStrategy).toBe('auth_token')
     expect(minimax?.defaultModels.main).toBe('MiniMax-M3')
     expect(minimax?.modelContextWindows?.['MiniMax-M3']).toBe(1000000)
@@ -121,6 +127,7 @@ describe('provider presets API', () => {
     const minimax = PROVIDER_PRESETS.find((preset) => preset.id === 'minimax')
     const jiekouai = PROVIDER_PRESETS.find((preset) => preset.id === 'jiekouai')
     const shengsuanyun = PROVIDER_PRESETS.find((preset) => preset.id === 'shengsuanyun')
+    const vllm = PROVIDER_PRESETS.find((preset) => preset.id === 'vllm')
     const custom = PROVIDER_PRESETS.find((preset) => preset.id === 'custom')
 
     expect(lmstudio?.needsApiKey).toBe(false)
@@ -139,8 +146,8 @@ describe('provider presets API', () => {
     expect(deepseek?.modelContextWindows?.['deepseek-v4-pro']).toBe(1000000)
     expect(deepseek?.modelContextWindows?.['deepseek-v4-flash']).toBe(1000000)
     expect(zhipu?.apiKeyUrl).toBe('https://www.bigmodel.cn/invite?icode=d41B2qi8Z5xNwTGLNPPF3OZLO2QH3C0EBTSr%2BArzMw4%3D')
-    expect(zhipu?.promoText).toContain('cc-haha')
-    expect(zhipu?.defaultEnv?.CC_HAHA_SEND_DISABLED_THINKING).toBe('1')
+    expect(zhipu?.promoText).toContain('cc-hust')
+    expect(zhipu?.defaultEnv?.CC_HUST_SEND_DISABLED_THINKING).toBe('1')
     expect(zhipu?.modelContextWindows?.['glm-5.1']).toBe(200000)
     expect(zhipu?.modelContextWindows?.['glm-4.5-air']).toBe(128000)
     expect(kimi?.apiKeyUrl).toBe('https://platform.kimi.com/console/api-keys')
@@ -158,21 +165,30 @@ describe('provider presets API', () => {
       ANTHROPIC_DEFAULT_SONNET_MODEL_SUPPORTED_CAPABILITIES: 'none',
     })
     expect(shengsuanyun?.modelContextWindows?.['anthropic/claude-opus-4.7']).toBe(1000000)
+    expect(vllm?.needsApiKey).toBe(false)
+    expect(vllm?.promoText).toContain('http://localhost:18000')
+    expect(vllm?.promoText).toContain('/v1')
+    expect(vllm?.defaultEnv).toEqual({
+      API_TIMEOUT_MS: '3000000',
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1',
+      CC_HUST_SEND_DISABLED_THINKING: '1',
+    })
+    expect(vllm?.modelContextWindows?.['Qwen3-32B']).toBe(32768)
     expect(custom?.promoText).toBeUndefined()
     expect(custom?.authStrategy).toBe('auth_token')
     expect(custom?.defaultEnv).toBeUndefined()
   })
 
-  test('GET and PUT /api/providers/settings read and write cc-haha settings.json', async () => {
+  test('GET and PUT /api/providers/settings read and write cc-hust settings.json', async () => {
     const initial = {
       env: {
         ANTHROPIC_MODEL: 'glm-5.1',
       },
       model: 'glm-5.1',
     }
-    await fs.mkdir(path.join(tmpDir, 'cc-haha'), { recursive: true })
+    await fs.mkdir(path.join(tmpDir, 'cc-hust'), { recursive: true })
     await fs.writeFile(
-      path.join(tmpDir, 'cc-haha', 'settings.json'),
+      path.join(tmpDir, 'cc-hust', 'settings.json'),
       JSON.stringify(initial, null, 2),
       'utf-8',
     )
@@ -192,7 +208,7 @@ describe('provider presets API', () => {
     const putRes = await handleProvidersApi(putReq.req, putReq.url, putReq.segments)
     expect(putRes.status).toBe(200)
 
-    const updatedRaw = await fs.readFile(path.join(tmpDir, 'cc-haha', 'settings.json'), 'utf-8')
+    const updatedRaw = await fs.readFile(path.join(tmpDir, 'cc-hust', 'settings.json'), 'utf-8')
     expect(JSON.parse(updatedRaw)).toEqual(updateBody)
   })
 

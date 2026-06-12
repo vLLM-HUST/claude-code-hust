@@ -1,5 +1,5 @@
 /**
- * Unit tests for HahaOAuthService — haha 自管 OAuth 的核心 service 层。
+ * Unit tests for HustOAuthService — hust 自管 OAuth 的核心 service 层。
  */
 
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
@@ -7,19 +7,19 @@ import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as os from 'os'
 import {
-  HahaOAuthService,
+  HustOAuthService,
   type StoredOAuthTokens,
-} from '../services/hahaOAuthService.js'
+} from '../services/hustOAuthService.js'
 
 let tmpDir: string
 let originalConfigDir: string | undefined
-let service: HahaOAuthService
+let service: HustOAuthService
 
 async function setup() {
-  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'haha-oauth-test-'))
+  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hust-oauth-test-'))
   originalConfigDir = process.env.CLAUDE_CONFIG_DIR
   process.env.CLAUDE_CONFIG_DIR = tmpDir
-  service = new HahaOAuthService()
+  service = new HustOAuthService()
 }
 
 async function teardown() {
@@ -31,7 +31,7 @@ async function teardown() {
   await fs.rm(tmpDir, { recursive: true, force: true })
 }
 
-describe('HahaOAuthService — file storage', () => {
+describe('HustOAuthService — file storage', () => {
   beforeEach(setup)
   afterEach(teardown)
 
@@ -49,7 +49,7 @@ describe('HahaOAuthService — file storage', () => {
     }
     await service.saveTokens(tokens)
 
-    const oauthPath = path.join(tmpDir, 'cc-haha', 'oauth.json')
+    const oauthPath = path.join(tmpDir, 'cc-hust', 'oauth.json')
     const stat = await fs.stat(oauthPath)
     if (process.platform !== 'win32') {
       expect(stat.mode & 0o777).toBe(0o600)
@@ -72,7 +72,7 @@ describe('HahaOAuthService — file storage', () => {
   })
 })
 
-describe('HahaOAuthService — session management', () => {
+describe('HustOAuthService — session management', () => {
   beforeEach(setup)
   afterEach(teardown)
 
@@ -123,7 +123,7 @@ describe('HahaOAuthService — session management', () => {
   })
 })
 
-describe('HahaOAuthService — ensureFreshAccessToken', () => {
+describe('HustOAuthService — ensureFreshAccessToken', () => {
   beforeEach(setup)
   afterEach(teardown)
 

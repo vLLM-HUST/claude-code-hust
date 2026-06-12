@@ -11,7 +11,7 @@ const MAX_PROJECT_PREFERENCE_ENTRIES = 2_000
 const MAX_PROFILE_DISPLAY_NAME_LENGTH = 80
 const MAX_PROFILE_SUBTITLE_LENGTH = 160
 const MAX_PROFILE_AVATAR_BYTES = 2_000_000
-const DEFAULT_PROFILE_SUBTITLE = 'github.com/NanmiCoder/cc-haha'
+const DEFAULT_PROFILE_SUBTITLE = 'github.com/NanmiCoder/cc-hust'
 
 const AVATAR_CONTENT_TYPES = {
   'image/png': { extension: 'png', mediaType: 'image/png' },
@@ -55,7 +55,7 @@ const DEFAULT_SIDEBAR_PROJECT_PREFERENCES: SidebarProjectPreferences = {
 }
 
 const DEFAULT_PROFILE_PREFERENCES: DesktopProfilePreferences = {
-  displayName: 'cc-haha',
+  displayName: 'cc-hust',
   subtitle: DEFAULT_PROFILE_SUBTITLE,
   avatarFile: null,
   avatarUpdatedAt: null,
@@ -169,11 +169,11 @@ export class DesktopUiPreferencesService {
   }
 
   private getPreferencesPath(): string {
-    return path.join(this.getConfigDir(), 'cc-haha', 'desktop-ui.json')
+    return path.join(this.getConfigDir(), 'cc-hust', 'desktop-ui.json')
   }
 
   private getProfileDir(): string {
-    return path.join(this.getConfigDir(), 'cc-haha', 'profile')
+    return path.join(this.getConfigDir(), 'cc-hust', 'profile')
   }
 
   private getProfileAvatarPath(avatarFile: string): string {
@@ -181,7 +181,7 @@ export class DesktopUiPreferencesService {
     if (!normalized) {
       throw ApiError.badRequest('Invalid avatar file path')
     }
-    return path.join(this.getConfigDir(), 'cc-haha', normalized)
+    return path.join(this.getConfigDir(), 'cc-hust', normalized)
   }
 
   private async fileExists(filePath: string): Promise<boolean> {
@@ -236,7 +236,7 @@ export class DesktopUiPreferencesService {
     const existedBeforeRead = await this.fileExists(filePath)
     const preferences = await readRecoverableJsonFile({
       filePath,
-      label: 'cc-haha desktop UI preferences',
+      label: 'cc-hust desktop UI preferences',
       defaultValue: defaultPreferences(),
       normalize: normalizeDesktopUiPreferences,
     })

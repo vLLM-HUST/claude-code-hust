@@ -25,7 +25,7 @@ These rules are adapted from Karpathy-style coding-agent guidelines. They bias t
 ## Project Structure & Module Organization
 This is a Bun-based Coding Agent product with a CLI, local server, desktop app, IM adapters, docs, and release automation.
 
-- `bin/claude-haha` is the executable entrypoint; `bun run start` and `./bin/claude-haha` run the CLI locally.
+- `bin/claude-hust` is the executable entrypoint; `bun run start` and `./bin/claude-hust` run the CLI locally.
 - `src/` contains the CLI/runtime surface: `entrypoints/` for startup paths, `screens/` and `components/` for the Ink TUI, `commands/` for slash commands, `services/` for API/MCP/OAuth logic, `tools/` for agent tools, `utils/` for shared runtime helpers, and `server/` for the local API/WebSocket service.
 - `desktop/` contains the desktop product: React UI in `desktop/src/`, API clients in `desktop/src/api/`, shared UI in `desktop/src/components/`, Electron host code in `desktop/electron/`, legacy Tauri resources/sidecar assets in `desktop/src-tauri/`, and desktop build scripts in `desktop/scripts/`.
 - `adapters/` contains IM adapter sidecars for Telegram, Feishu, WeChat, DingTalk, and shared adapter utilities.
@@ -35,7 +35,7 @@ This is a Bun-based Coding Agent product with a CLI, local server, desktop app, 
 ## Build, Test, and Development Commands
 Install root dependencies with `bun install`. Install desktop dependencies in `desktop/` when touching desktop UI/native code, and adapter dependencies in `adapters/` when touching IM adapters.
 
-- `./bin/claude-haha` or `bun run start`: run the CLI locally.
+- `./bin/claude-hust` or `bun run start`: run the CLI locally.
 - `SERVER_PORT=3456 bun run src/server/index.ts`: start the local API/WebSocket server used by `desktop/`.
 - `cd desktop && bun run dev`: run the desktop frontend in Vite.
 - `cd desktop && bun run build`: type-check and produce a production web build.
@@ -85,9 +85,9 @@ Every feature, bugfix, and behavior change must ship with proof that matches the
 - Any change to local JSON, `localStorage`, or app config persistence formats must ship with a forward migration, an old-fixture regression test, and a persistence upgrade gate.
 - Run `bun run check:persistence-upgrade` for storage-shape changes. The change is blocked until migration tests, old fixtures, backup behavior, and unknown-field preservation pass.
 - `~/.claude/settings.json` is user-owned shared state: preserve unknown fields on read/write, merge additively, and never write a repo-owned global `schemaVersion` into it.
-- Desktop Doctor and any automatic repair path must be deny-by-default. One-click repair may only mutate allowlisted, regenerable desktop UI state such as `cc-haha-*` `localStorage` keys or native window state.
+- Desktop Doctor and any automatic repair path must be deny-by-default. One-click repair may only mutate allowlisted, regenerable desktop UI state such as `cc-hust-*` `localStorage` keys or native window state.
 - Doctor and repair flows must never mutate chat transcripts, model/provider config, Skills, MCP config, plugin state, IM bindings, adapter sessions, OAuth tokens, or team/session records unless a future task explicitly adds a reviewed, backup-first manual repair flow.
-- Protected files include `~/.claude/projects/**/*.jsonl`, `~/.claude/settings.json`, project `.claude/settings.json`, `~/.claude/cc-haha/providers.json`, `~/.claude/cc-haha/settings.json`, `~/.claude/adapters.json`, `~/.claude/adapter-sessions.json`, `~/.claude/skills`, project `.claude/skills`, `.mcp.json`, managed MCP config, `~/.claude/plugins/**`, `~/.claude/teams/**`, and `~/.claude/cc-haha/*oauth*.json`. Diagnose these paths only with redaction by default.
+- Protected files include `~/.claude/projects/**/*.jsonl`, `~/.claude/settings.json`, project `.claude/settings.json`, `~/.claude/cc-hust/providers.json`, `~/.claude/cc-hust/settings.json`, `~/.claude/adapters.json`, `~/.claude/adapter-sessions.json`, `~/.claude/skills`, project `.claude/skills`, `.mcp.json`, managed MCP config, `~/.claude/plugins/**`, `~/.claude/teams/**`, and `~/.claude/cc-hust/*oauth*.json`. Diagnose these paths only with redaction by default.
 - If a persistence shape cannot be upgraded in place, the implementation is blocked until the upgrade path is explicit and tested.
 
 ## Desktop & UX Expectations
