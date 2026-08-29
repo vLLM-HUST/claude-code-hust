@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "canonical_registry": "https://github.com/vLLM-HUST/vllm-hust-docs/tree/codex/ecosystem-architecture-reorganization/registry",
+  "repository": "https://github.com/vLLM-HUST/claude-code-hust",
+  "repository_role": "application",
+  "relation_to_runtime": "adjacent_research",
+  "lifecycle": "community",
+  "artifacts": [
+    {
+      "id": "claude-code-hust-application",
+      "artifact_type": "application",
+      "system_role": "adjacent_application",
+      "delivery_model": "source_repository",
+      "execution_planes": ["api", "native", "external_service"],
+      "integration_contracts": [],
+      "integration_surfaces": ["OpenAI-compatible model-provider APIs"]
+    }
+  ],
+  "system_boundaries": {
+    "is": [
+      "a coding-agent CLI, local server, desktop application, and adapter product",
+      "a consumer of configurable model-provider APIs"
+    ],
+    "is_not": [
+      "a vLLM runtime component or extension bundle",
+      "a vLLM platform profile",
+      "an authority for serving-system compatibility"
+    ]
+  },
+  "validation": ["bun run check:impact", "bun run check:docs"],
+  "compatibility_document": "README.md"
+}
