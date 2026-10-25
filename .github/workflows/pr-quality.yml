@@ -99,6 +99,13 @@ jobs:
       - name: Install root dependencies
         run: bun install
 
+      - name: Install adapter dependencies
+        working-directory: adapters
+        run: bun install
+
+      - name: Install search dependency
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
       - name: Run server checks
         run: bun run check:server
 
@@ -152,6 +159,10 @@ jobs:
         working-directory: desktop
         run: bun install
 
+      - name: Install adapter dependencies
+        working-directory: adapters
+        run: bun install
+
       - name: Run desktop native checks
         run: bun run check:native
 
@@ -199,6 +210,9 @@ jobs:
       - name: Install adapter dependencies
         working-directory: adapters
         run: bun install
+
+      - name: Install search dependency
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
 
       - name: Run coverage checks
         env:

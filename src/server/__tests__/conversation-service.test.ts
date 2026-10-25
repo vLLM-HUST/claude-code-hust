@@ -32,6 +32,7 @@ describe('ConversationService', () => {
   let originalPath: string | undefined
   let originalShell: string | undefined
   let originalZdotdir: string | undefined
+  let originalNvmDir: string | undefined
   let originalDisableTerminalShellEnv: string | undefined
 
   beforeEach(async () => {
@@ -55,6 +56,8 @@ describe('ConversationService', () => {
     originalPath = process.env.PATH
     originalShell = process.env.SHELL
     originalZdotdir = process.env.ZDOTDIR
+    originalNvmDir = process.env.NVM_DIR
+    delete process.env.NVM_DIR
     originalDisableTerminalShellEnv = process.env.CC_HUST_DISABLE_TERMINAL_SHELL_ENV
 
     process.env.CLAUDE_CONFIG_DIR = tmpDir
@@ -79,6 +82,8 @@ describe('ConversationService', () => {
   })
 
   afterEach(async () => {
+    if (originalNvmDir === undefined) delete process.env.NVM_DIR
+    else process.env.NVM_DIR = originalNvmDir
     if (originalConfigDir === undefined) delete process.env.CLAUDE_CONFIG_DIR
     else process.env.CLAUDE_CONFIG_DIR = originalConfigDir
 

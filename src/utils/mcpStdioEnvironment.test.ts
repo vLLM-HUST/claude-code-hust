@@ -13,6 +13,7 @@ let originalEnv: {
   PATH?: string
   SHELL?: string
   ZDOTDIR?: string
+  NVM_DIR?: string
   CC_HUST_DISABLE_TERMINAL_SHELL_ENV?: string
 }
 
@@ -51,10 +52,12 @@ describe('MCP stdio environment', () => {
       PATH: process.env.PATH,
       SHELL: process.env.SHELL,
       ZDOTDIR: process.env.ZDOTDIR,
+      NVM_DIR: process.env.NVM_DIR,
       CC_HUST_DISABLE_TERMINAL_SHELL_ENV:
         process.env.CC_HUST_DISABLE_TERMINAL_SHELL_ENV,
     }
     delete process.env.CC_HUST_DISABLE_TERMINAL_SHELL_ENV
+    delete process.env.NVM_DIR
     resetMcpStdioEnvironmentCacheForTests()
   })
 

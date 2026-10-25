@@ -28,10 +28,15 @@ describe('WsBridge', () => {
     expect(bridge.hasSession('chat-2')).toBe(true)
   })
 
-  it('resetSession removes the session', () => {
+  it('resetSession closes a connecting socket without an unhandled error', async () => {
     bridge.connectSession('chat-reset', 'uuid-reset')
+    const socket = (bridge as any).sessions.get('chat-reset').ws as WsServerSocket
     bridge.resetSession('chat-reset')
+    // reset removes old listeners; wait on the detached socket's final close.
+    const finished = new Promise<void>(resolve => socket.once('close', () => resolve()))
+    await finished
     expect(bridge.hasSession('chat-reset')).toBe(false)
+    expect(socket.readyState).toBe(socket.CLOSED)
   })
 
   it('sendUserMessage returns false when no open connection', () => {
@@ -49,12 +54,15 @@ describe('WsBridge', () => {
     expect(bridge.sendStopGeneration('chat-stop')).toBe(false)
   })
 
-  it('destroy cleans up all sessions', () => {
+  it('destroy cleans up all connecting sessions without unhandled errors', async () => {
     bridge.connectSession('a', 'uuid-a')
     bridge.connectSession('b', 'uuid-b')
+    const sockets = [...(bridge as any).sessions.values()].map(session => session.ws as WsServerSocket)
     bridge.destroy()
+    await Promise.all(sockets.map(socket => new Promise<void>(resolve => socket.once('close', () => resolve()))))
     expect(bridge.hasSession('a')).toBe(false)
     expect(bridge.hasSession('b')).toBe(false)
+    expect(sockets.every(socket => socket.readyState === socket.CLOSED)).toBe(true)
   })
 })
 

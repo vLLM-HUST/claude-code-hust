@@ -23,6 +23,7 @@ const originalClaudeCodeEntrypoint = process.env.CLAUDE_CODE_ENTRYPOINT
 const originalHome = process.env.HOME
 const originalShell = process.env.SHELL
 const originalZdotdir = process.env.ZDOTDIR
+const originalNvmDir = process.env.NVM_DIR
 const originalDisableTerminalShellEnv = process.env.CC_HUST_DISABLE_TERMINAL_SHELL_ENV
 
 const isWindows = process.platform === 'win32'
@@ -52,6 +53,8 @@ async function createSourceRoot(root: string): Promise<void> {
 }
 
 function restoreEnv(): void {
+  if (originalNvmDir === undefined) delete process.env.NVM_DIR
+  else process.env.NVM_DIR = originalNvmDir
   if (originalConfigDir) {
     process.env.CLAUDE_CONFIG_DIR = originalConfigDir
   } else {
@@ -114,6 +117,7 @@ describe('cron scheduler launcher resolution', () => {
   let tmpDir: string
 
   beforeEach(async () => {
+    delete process.env.NVM_DIR
     tmpDir = await createTmpDir()
     process.env.CLAUDE_CONFIG_DIR = path.join(tmpDir, 'config')
     process.env.CC_HUST_DISABLE_TERMINAL_SHELL_ENV = '1'

@@ -112,7 +112,7 @@ describe('E2E: Full Flow', () => {
 
   it('should return diagnostics', async () => {
     const { data } = await api('GET', '/api/status/diagnostics')
-    expect(data.platform).toBe('darwin')
+    expect(data.platform).toBe(process.platform)
     expect(data.configDir).toBe(tmpDir)
   })
 
@@ -379,12 +379,13 @@ describe('E2E: Full Flow', () => {
   // 10. CORS
   // =============================================
 
-  it('should block browser CORS preflight while H5 access is disabled', async () => {
+  it('should allow local desktop browser CORS preflight', async () => {
     const res = await fetch(`${baseUrl}/api/status`, {
       method: 'OPTIONS',
       headers: { 'Origin': 'http://localhost:3000' },
     })
-    expect(res.status).toBe(403)
+    expect(res.status).toBe(204)
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000')
   })
 
   // =============================================

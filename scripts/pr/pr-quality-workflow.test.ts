@@ -2,6 +2,30 @@ import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 
 describe('PR quality workflow', () => {
+  test.each(['server-checks', 'desktop-native-checks', 'coverage-checks'])(
+    '%s installs the adapter modules imported by the server and sidecars',
+    job => {
+      const workflow = readFileSync('.github/workflows/pr-quality.yml', 'utf8')
+      const body = workflow.split(`\n  ${job}:`)[1].split(/\n  [a-z-]+:/)[0]
+      expect(body).toContain('working-directory: adapters\n        run: bun install')
+      expect(body.indexOf('working-directory: adapters')).toBeLessThan(
+        body.indexOf('run: bun run check:'),
+      )
+    },
+  )
+
+  test.each(['server-checks', 'coverage-checks'])(
+    '%s installs ripgrep before testing file discovery',
+    job => {
+      const workflow = readFileSync('.github/workflows/pr-quality.yml', 'utf8')
+      const body = workflow.split(`\n  ${job}:`)[1].split(/\n  [a-z-]+:/)[0]
+      expect(body).toContain('sudo apt-get install -y ripgrep')
+      expect(body.indexOf('sudo apt-get install -y ripgrep')).toBeLessThan(
+        body.indexOf('run: bun run check:'),
+      )
+    },
+  )
+
   test('installs root dependencies before running policy tests', () => {
     const workflow = readFileSync('.github/workflows/pr-quality.yml', 'utf8')
     const policyJob = workflow.split('  change-policy:')[1].split('\n  desktop-checks:')[0]
