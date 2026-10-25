@@ -2,6 +2,16 @@ import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 
 describe('PR quality workflow', () => {
+  test('installs root dependencies before running policy tests', () => {
+    const workflow = readFileSync('.github/workflows/pr-quality.yml', 'utf8')
+    const policyJob = workflow.split('  change-policy:')[1].split('\n  desktop-checks:')[0]
+    const install = policyJob.indexOf('run: bun install')
+    const tests = policyJob.indexOf('run: bun run check:policy')
+
+    expect(install).toBeGreaterThanOrEqual(0)
+    expect(tests).toBeGreaterThan(install)
+  })
+
   test('routes policy outputs into conditional check jobs', () => {
     const workflow = readFileSync('.github/workflows/pr-quality.yml', 'utf8')
 

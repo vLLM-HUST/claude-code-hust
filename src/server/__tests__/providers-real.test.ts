@@ -4,7 +4,7 @@
  * (provider env 写到 ~/.claude/cc-hust/settings.json，不污染原版 settings.json)
  */
 
-import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
+import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as os from 'os'
@@ -202,23 +202,38 @@ describe('Real Provider Configs', () => {
     console.log('✅ activateOfficial 正确清除了 provider env')
   })
 
-  test('连通性测试 — 返回结构正确', async () => {
-    const result = await service.testProviderConfig({
-      baseUrl: 'https://api.minimaxi.com/anthropic',
-      apiKey: 'sk-fake-test-key',
-      modelId: 'MiniMax-M3',
-      authStrategy: 'auth_token',
-    })
+  test.each([200, 401])('连通性响应契约 — HTTP %i（无外部网络）', async (status) => {
+    const originalFetch = globalThis.fetch
+    const calls: Array<{ url: string; init?: RequestInit }> = []
+    globalThis.fetch = mock(async (url: string | URL | Request, init?: RequestInit) => {
+      calls.push({ url: String(url), init })
+      return Response.json(status === 200
+        ? { type: 'message', model: 'MiniMax-M3', content: [] }
+        : { error: { message: 'Invalid API key' } }, { status })
+    }) as typeof fetch
 
-    // testProviderConfig 返回 { connectivity: { ... }, proxy?: { ... } }
-    expect(result.connectivity).toBeDefined()
-    expect(result.connectivity.latencyMs).toBeGreaterThanOrEqual(0)
-    expect(result.connectivity.modelUsed).toBe('MiniMax-M3')
+    try {
+      const result = await service.testProviderConfig({
+        baseUrl: 'https://api.minimaxi.com/anthropic',
+        apiKey: 'sk-fake-test-key',
+        modelId: 'MiniMax-M3',
+        authStrategy: 'auth_token',
+      })
 
-    console.log('🔌 MiniMax 连通性测试结果:')
-    console.log('   success:', result.connectivity.success)
-    console.log('   latencyMs:', result.connectivity.latencyMs)
-    console.log('   error:', result.connectivity.error)
+      expect(calls).toHaveLength(1)
+      expect(calls[0].url).toBe('https://api.minimaxi.com/anthropic/v1/messages')
+      expect(calls[0].init?.method).toBe('POST')
+      expect(new Headers(calls[0].init?.headers).get('Authorization')).toBe('Bearer sk-fake-test-key')
+      expect(JSON.parse(String(calls[0].init?.body)).model).toBe('MiniMax-M3')
+      expect(result.connectivity.success).toBe(status === 200)
+      expect(result.connectivity.httpStatus).toBe(status)
+      expect(result.connectivity.latencyMs).toBeGreaterThanOrEqual(0)
+      expect(result.connectivity.modelUsed).toBe('MiniMax-M3')
+      expect(result.connectivity.error).toBe(status === 401 ? 'Invalid API key' : undefined)
+      expect(result.proxy).toBeUndefined()
+    } finally {
+      globalThis.fetch = originalFetch
+    }
   })
 
   test('providers.json 和 cc-hust/settings.json 独立于 settings.json', async () => {
