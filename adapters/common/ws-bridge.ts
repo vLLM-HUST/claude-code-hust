@@ -130,6 +130,10 @@ export class WsBridge {
     if (session) {
       if (session.reconnectTimer) clearTimeout(session.reconnectTimer)
       session.ws.removeAllListeners()
+      // Aborting a pending handshake emits an expected error before close.
+      if (session.ws.readyState === WebSocket.CONNECTING) {
+        session.ws.once('error', () => {})
+      }
       session.ws.close(1000, 'session reset')
       this.sessions.delete(chatId)
     }
@@ -152,6 +156,10 @@ export class WsBridge {
     for (const [, session] of this.sessions) {
       if (session.reconnectTimer) clearTimeout(session.reconnectTimer)
       session.ws.removeAllListeners()
+      // Aborting a pending handshake emits an expected error before close.
+      if (session.ws.readyState === WebSocket.CONNECTING) {
+        session.ws.once('error', () => {})
+      }
       session.ws.close(1000, 'bridge destroyed')
     }
     this.sessions.clear()

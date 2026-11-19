@@ -3,9 +3,9 @@
     {
       "id": "server:providers-real",
       "path": "src/server/__tests__/providers-real.test.ts",
-      "reason": "Reviewed 2026-06-03: suite still performs a live MiniMax connectivity request with a fake key. Default server/PR gates must stay non-live and should not depend on third-party network responses.",
+      "reason": "Reviewed 2026-11-19: src/server/__tests__/providers-real.test.ts still calls testProviderConfig against api.minimaxi.com with sk-fake-test-key and no fetch mock. The documented exit criteria remain unmet. Retain non-live isolation for another 14 days; dependency installation and docs link validation do not exercise a real provider.",
       "owner": "maintainers",
-      "reviewAfter": "2026-06-17",
+      "reviewAfter": "2026-12-03",
       "exitCriteria": "Move the live connectivity assertion into provider-smoke/release-live lanes, or replace it with a deterministic fetch mock so only non-live provider contract coverage remains in check:server."
     }
   ]

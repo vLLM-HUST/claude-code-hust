@@ -20,6 +20,7 @@ const originalClaudeAppRoot = process.env.CLAUDE_APP_ROOT
 const originalAnthropicBaseUrl = process.env.ANTHROPIC_BASE_URL
 const originalAnthropicModel = process.env.ANTHROPIC_MODEL
 const originalClaudeCodeEntrypoint = process.env.CLAUDE_CODE_ENTRYPOINT
+const originalNvmDir = process.env.NVM_DIR
 const originalHome = process.env.HOME
 const originalShell = process.env.SHELL
 const originalZdotdir = process.env.ZDOTDIR
@@ -87,6 +88,8 @@ function restoreEnv(): void {
   } else {
     delete process.env.CLAUDE_CODE_ENTRYPOINT
   }
+  if (originalNvmDir === undefined) delete process.env.NVM_DIR
+  else process.env.NVM_DIR = originalNvmDir
   if (originalHome) {
     process.env.HOME = originalHome
   } else {
@@ -112,8 +115,12 @@ function restoreEnv(): void {
 
 describe('cron scheduler launcher resolution', () => {
   let tmpDir: string
+  let originalServerPort: number
 
   beforeEach(async () => {
+    originalServerPort = ProviderService.getServerPort()
+    ProviderService.setServerPort(3456)
+    delete process.env.NVM_DIR
     tmpDir = await createTmpDir()
     process.env.CLAUDE_CONFIG_DIR = path.join(tmpDir, 'config')
     process.env.CC_HUST_DISABLE_TERMINAL_SHELL_ENV = '1'
@@ -122,6 +129,7 @@ describe('cron scheduler launcher resolution', () => {
 
   afterEach(async () => {
     restoreEnv()
+    ProviderService.setServerPort(originalServerPort)
     await cleanupTmpDir(tmpDir)
   })
 

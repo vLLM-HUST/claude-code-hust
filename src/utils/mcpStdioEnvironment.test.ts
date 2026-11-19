@@ -10,6 +10,7 @@ import {
 let tmpDir: string
 let originalEnv: {
   HOME?: string
+  NVM_DIR?: string
   PATH?: string
   SHELL?: string
   ZDOTDIR?: string
@@ -48,12 +49,14 @@ describe('MCP stdio environment', () => {
     tmpDir = await mkdtemp(path.join(tmpdir(), 'mcp-stdio-env-test-'))
     originalEnv = {
       HOME: process.env.HOME,
+      NVM_DIR: process.env.NVM_DIR,
       PATH: process.env.PATH,
       SHELL: process.env.SHELL,
       ZDOTDIR: process.env.ZDOTDIR,
       CC_HUST_DISABLE_TERMINAL_SHELL_ENV:
         process.env.CC_HUST_DISABLE_TERMINAL_SHELL_ENV,
     }
+    delete process.env.NVM_DIR
     delete process.env.CC_HUST_DISABLE_TERMINAL_SHELL_ENV
     resetMcpStdioEnvironmentCacheForTests()
   })

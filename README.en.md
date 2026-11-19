@@ -13,7 +13,7 @@
 [![License](https://img.shields.io/github/license/NanmiCoder/cc-hust)](https://github.com/NanmiCoder/cc-hust/blob/main/LICENSE)
 [![中文](https://img.shields.io/badge/🇨🇳_中文-Available-green)](README.md)
 [![English](https://img.shields.io/badge/🇺🇸_English-当前-blue)](README.en.md)
-[![Docs](https://img.shields.io/badge/📖_Documentation-Visit-FF7A00)](https://claudecode-hust.relakkesyang.org)
+[![Docs](https://img.shields.io/badge/📖_Documentation-Visit-FF7A00)](docs/en/guide/quick-start.md)
 
 </div>
 

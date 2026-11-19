@@ -28,10 +28,11 @@ describe('WsBridge', () => {
     expect(bridge.hasSession('chat-2')).toBe(true)
   })
 
-  it('resetSession removes the session', () => {
+  it('resetSession removes the session', async () => {
     bridge.connectSession('chat-reset', 'uuid-reset')
     bridge.resetSession('chat-reset')
     expect(bridge.hasSession('chat-reset')).toBe(false)
+    await new Promise<void>(resolve => setImmediate(resolve))
   })
 
   it('sendUserMessage returns false when no open connection', () => {
@@ -49,12 +50,13 @@ describe('WsBridge', () => {
     expect(bridge.sendStopGeneration('chat-stop')).toBe(false)
   })
 
-  it('destroy cleans up all sessions', () => {
+  it('destroy cleans up all sessions', async () => {
     bridge.connectSession('a', 'uuid-a')
     bridge.connectSession('b', 'uuid-b')
     bridge.destroy()
     expect(bridge.hasSession('a')).toBe(false)
     expect(bridge.hasSession('b')).toBe(false)
+    await new Promise<void>(resolve => setImmediate(resolve))
   })
 })
 

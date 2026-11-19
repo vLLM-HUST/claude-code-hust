@@ -1,11 +1,101 @@
 import { afterEach, describe, expect, it } from 'bun:test'
-import { buildClientVersion, extractWechatText, sendWechatText, sendWechatTyping } from '../protocol.js'
+import { buildClientVersion, extractWechatText, sendWechatText, sendWechatTyping, startWechatLoginWithQr, pollWechatLoginWithQr, getWechatUpdates, getWechatConfig } from '../protocol.js'
 import { collectWechatMediaCandidates } from '../media.js'
 
 const originalFetch = globalThis.fetch
 
 afterEach(() => {
   globalThis.fetch = originalFetch
+})
+
+describe('WeChat login and polling contracts', () => {
+  it('reuses a fresh QR and requests a new one only when forced', async () => {
+    const requests: string[] = []
+    globalThis.fetch = (async (url: Parameters<typeof fetch>[0]) => {
+      requests.push(String(url))
+      return Response.json({ qrcode: 'qr-token', qrcode_img_content: 'https://unit.invalid/qr.png' })
+    }) as typeof fetch
+    const first = await startWechatLoginWithQr({ sessionKey: 'unit-qr-reuse', botType: '3&extra=1' })
+    expect(await startWechatLoginWithQr({ sessionKey: first.sessionKey })).toMatchObject({ qrcodeUrl: first.qrcodeUrl })
+    expect(requests).toHaveLength(1)
+    expect(new URL(requests[0]!).searchParams.get('bot_type')).toBe('3&extra=1')
+    await startWechatLoginWithQr({ sessionKey: first.sessionKey, force: true })
+    expect(requests).toHaveLength(2)
+  })
+
+  it('follows the QR gateway redirect and returns confirmed credentials once', async () => {
+    const urls: string[] = []
+    const responses = [
+      { qrcode: 'redirect-qr', qrcode_img_content: 'https://unit.invalid/qr.png' },
+      { status: 'scaned_but_redirect', redirect_host: 'gateway.unit.invalid' },
+      { status: 'confirmed', bot_token: 'fake-unit-token', ilink_bot_id: 'bot-1', ilink_user_id: 'user-1' },
+    ]
+    globalThis.fetch = (async (url: Parameters<typeof fetch>[0]) => {
+      urls.push(String(url))
+      return Response.json(responses.shift())
+    }) as typeof fetch
+    const { sessionKey } = await startWechatLoginWithQr({ sessionKey: 'unit-qr-redirect' })
+    expect(await pollWechatLoginWithQr({ sessionKey })).toMatchObject({ connected: false, status: 'scaned_but_redirect' })
+    expect(await pollWechatLoginWithQr({ sessionKey })).toMatchObject({
+      connected: true, botToken: 'fake-unit-token', accountId: 'bot-1', userId: 'user-1', baseUrl: 'https://gateway.unit.invalid',
+    })
+    expect(new URL(urls[2]!).hostname).toBe('gateway.unit.invalid')
+    expect(await pollWechatLoginWithQr({ sessionKey })).toMatchObject({ connected: false, status: 'not_started' })
+  })
+
+  it('does not report a successful login without complete credentials', async () => {
+    let first = true
+    globalThis.fetch = (async () => {
+      const response = first
+        ? { qrcode: 'incomplete-qr', qrcode_img_content: 'https://unit.invalid/qr.png' }
+        : { status: 'confirmed', bot_token: 'fake-unit-token' }
+      first = false
+      return Response.json(response)
+    }) as typeof fetch
+    const { sessionKey } = await startWechatLoginWithQr({ sessionKey: 'unit-qr-incomplete' })
+    expect(await pollWechatLoginWithQr({ sessionKey })).toMatchObject({ connected: false, status: 'confirmed' })
+  })
+
+  it('keeps a QR session pending when the long poll is aborted', async () => {
+    globalThis.fetch = (async () => Response.json({ qrcode: 'waiting-qr', qrcode_img_content: 'https://unit.invalid/qr.png' })) as typeof fetch
+    const { sessionKey } = await startWechatLoginWithQr({ sessionKey: 'unit-qr-abort' })
+    globalThis.fetch = (async () => { throw new DOMException('aborted', 'AbortError') }) as typeof fetch
+    expect(await pollWechatLoginWithQr({ sessionKey })).toMatchObject({ connected: false, status: 'wait' })
+  })
+
+  it('rejects malformed QR responses instead of recording an unusable login', async () => {
+    globalThis.fetch = (async () => Response.json({ qrcode: 'missing-image' })) as typeof fetch
+    await expect(startWechatLoginWithQr({ sessionKey: 'unit-qr-malformed' })).rejects.toThrow('did not include a QR code URL')
+    expect(await pollWechatLoginWithQr({ sessionKey: 'unit-qr-malformed' })).toMatchObject({ status: 'not_started' })
+  })
+
+  it('preserves the update cursor on a real AbortSignal timeout', async () => {
+    globalThis.fetch = ((_url: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => new Promise<Response>((_resolve, reject) => {
+      expect(JSON.parse(String(init?.body)).get_updates_buf).toBe('cursor-7')
+      init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')), { once: true })
+    })) as typeof fetch
+    expect(await getWechatUpdates({ baseUrl: 'https://unit.invalid', token: 'fake-unit-token', getUpdatesBuf: 'cursor-7', timeoutMs: 1 }))
+      .toEqual({ ret: 0, msgs: [], get_updates_buf: 'cursor-7' })
+  })
+
+  it('returns update messages and the next cursor from successful polls', async () => {
+    globalThis.fetch = (async () => Response.json({ ret: 0, msgs: [{ message_id: 42 }], get_updates_buf: 'cursor-8' })) as typeof fetch
+    expect(await getWechatUpdates({ baseUrl: 'https://unit.invalid', token: 'fake-unit-token' }))
+      .toMatchObject({ msgs: [{ message_id: 42 }], get_updates_buf: 'cursor-8' })
+  })
+
+  it('sends config requests with UTF-8 byte lengths and trimmed authentication', async () => {
+    globalThis.fetch = (async (url: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
+      expect(new URL(String(url)).pathname).toBe('/base/ilink/bot/getconfig')
+      const headers = new Headers(init?.headers)
+      expect(headers.get('Authorization')).toBe('Bearer fake-unit-token')
+      expect(headers.get('Content-Length')).toBe(String(Buffer.byteLength(String(init?.body))))
+      expect(JSON.parse(String(init?.body))).toMatchObject({ ilink_user_id: '用户', context_token: 'ctx-1' })
+      return Response.json({ ret: 0, typing_ticket: 'ticket-1' })
+    }) as typeof fetch
+    expect(await getWechatConfig({ baseUrl: 'https://unit.invalid/base', token: ' fake-unit-token ', ilinkUserId: '用户', contextToken: 'ctx-1' }))
+      .toMatchObject({ typing_ticket: 'ticket-1' })
+  })
 })
 
 describe('WeChat protocol helpers', () => {

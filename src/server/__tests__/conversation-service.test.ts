@@ -28,6 +28,8 @@ describe('ConversationService', () => {
   let originalTraceProviderId: string | undefined
   let originalTraceProviderName: string | undefined
   let originalTraceProviderFormat: string | undefined
+  let originalServerPort: number
+  let originalNvmDir: string | undefined
   let originalHome: string | undefined
   let originalPath: string | undefined
   let originalShell: string | undefined
@@ -35,6 +37,8 @@ describe('ConversationService', () => {
   let originalDisableTerminalShellEnv: string | undefined
 
   beforeEach(async () => {
+    originalServerPort = ProviderService.getServerPort()
+    ProviderService.setServerPort(3456)
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cc-hust-conversation-service-'))
     originalConfigDir = process.env.CLAUDE_CONFIG_DIR
     originalApiKey = process.env.ANTHROPIC_API_KEY
@@ -51,6 +55,8 @@ describe('ConversationService', () => {
     originalTraceProviderId = process.env.CC_HUST_TRACE_PROVIDER_ID
     originalTraceProviderName = process.env.CC_HUST_TRACE_PROVIDER_NAME
     originalTraceProviderFormat = process.env.CC_HUST_TRACE_PROVIDER_FORMAT
+    originalNvmDir = process.env.NVM_DIR
+    delete process.env.NVM_DIR
     originalHome = process.env.HOME
     originalPath = process.env.PATH
     originalShell = process.env.SHELL
@@ -79,6 +85,7 @@ describe('ConversationService', () => {
   })
 
   afterEach(async () => {
+    ProviderService.setServerPort(originalServerPort)
     if (originalConfigDir === undefined) delete process.env.CLAUDE_CONFIG_DIR
     else process.env.CLAUDE_CONFIG_DIR = originalConfigDir
 
@@ -123,6 +130,9 @@ describe('ConversationService', () => {
 
     if (originalTraceProviderFormat === undefined) delete process.env.CC_HUST_TRACE_PROVIDER_FORMAT
     else process.env.CC_HUST_TRACE_PROVIDER_FORMAT = originalTraceProviderFormat
+
+    if (originalNvmDir === undefined) delete process.env.NVM_DIR
+    else process.env.NVM_DIR = originalNvmDir
 
     if (originalHome === undefined) delete process.env.HOME
     else process.env.HOME = originalHome
