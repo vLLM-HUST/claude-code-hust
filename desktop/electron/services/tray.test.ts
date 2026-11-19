@@ -6,27 +6,22 @@ import { installTray, resolveTrayIconPath, shouldInstallTray } from './tray'
 
 const trayMocksKey = '__electronTrayMocks'
 
-function getElectronTrayMocks() {
+vi.mock('electron', () => {
   const mocks = (globalThis as Record<string, unknown>)[trayMocksKey] as ReturnType<typeof createElectronTrayMocks> | undefined
   if (!mocks) {
     throw new Error('Electron tray mocks were not initialized for this test')
   }
-  return mocks
-}
 
-vi.mock('electron', () => ({
-  Menu: {
-    buildFromTemplate: (template: unknown) => getElectronTrayMocks().buildFromTemplate(template),
-  },
-  Tray: function (icon: unknown) {
-    const mocks = getElectronTrayMocks()
-    mocks.Tray(icon)
-    return mocks.tray
-  },
-  nativeImage: {
-    createFromPath: (iconPath: string) => getElectronTrayMocks().createFromPath(iconPath),
-  },
-}))
+  return {
+    Menu: {
+      buildFromTemplate: mocks.buildFromTemplate,
+    },
+    Tray: mocks.Tray.mockImplementation(() => mocks.tray),
+    nativeImage: {
+      createFromPath: mocks.createFromPath,
+    },
+  }
+})
 
 function createElectronTrayMocks() {
   const handlers = new Map<string, () => void>()
