@@ -28,6 +28,7 @@ describe('ConversationService', () => {
   let originalTraceProviderId: string | undefined
   let originalTraceProviderName: string | undefined
   let originalTraceProviderFormat: string | undefined
+  let originalNvmDir: string | undefined
   let originalHome: string | undefined
   let originalPath: string | undefined
   let originalShell: string | undefined
@@ -51,6 +52,8 @@ describe('ConversationService', () => {
     originalTraceProviderId = process.env.CC_HUST_TRACE_PROVIDER_ID
     originalTraceProviderName = process.env.CC_HUST_TRACE_PROVIDER_NAME
     originalTraceProviderFormat = process.env.CC_HUST_TRACE_PROVIDER_FORMAT
+    originalNvmDir = process.env.NVM_DIR
+    delete process.env.NVM_DIR
     originalHome = process.env.HOME
     originalPath = process.env.PATH
     originalShell = process.env.SHELL
@@ -123,6 +126,9 @@ describe('ConversationService', () => {
 
     if (originalTraceProviderFormat === undefined) delete process.env.CC_HUST_TRACE_PROVIDER_FORMAT
     else process.env.CC_HUST_TRACE_PROVIDER_FORMAT = originalTraceProviderFormat
+
+    if (originalNvmDir === undefined) delete process.env.NVM_DIR
+    else process.env.NVM_DIR = originalNvmDir
 
     if (originalHome === undefined) delete process.env.HOME
     else process.env.HOME = originalHome

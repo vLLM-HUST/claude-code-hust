@@ -99,6 +99,12 @@ jobs:
       - name: Install root dependencies
         run: bun install
 
+      - name: Prepare ripgrep for source tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes ripgrep
+          install -D "$(command -v rg)" vendor/ripgrep/x64-linux/rg
+
       - name: Run server checks
         run: bun run check:server
 
@@ -199,6 +205,12 @@ jobs:
       - name: Install adapter dependencies
         working-directory: adapters
         run: bun install
+
+      - name: Prepare ripgrep for source tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes ripgrep
+          install -D "$(command -v rg)" vendor/ripgrep/x64-linux/rg
 
       - name: Run coverage checks
         env:

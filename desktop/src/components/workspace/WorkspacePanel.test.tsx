@@ -906,12 +906,12 @@ describe('WorkspacePanel', () => {
     expect(highlightedCode).toContain('+line 1')
     expect(highlightedCode).toContain('+line 2000')
     expect(highlightedCode).not.toContain('+line 2001')
-    await clickElement(view.getByRole('button', { name: 'Show all loaded lines' }))
+    await clickElement(view.getByText('Show all loaded lines', { selector: 'button' }))
 
     await waitFor(() => {
       expect(view.getByTestId('workspace-code').textContent).toContain('+line 2300')
     })
-    expect(view.getByRole('button', { name: 'Collapse preview' })).toBeTruthy()
+    expect(view.getByText('Collapse preview', { selector: 'button' })).toBeTruthy()
   })
 
   it('keeps diff rows intrinsically wide so H5 users can scroll sideways', async () => {
@@ -1002,12 +1002,12 @@ describe('WorkspacePanel', () => {
     expect(highlightedCode).toContain('const line1 = 1')
     expect(highlightedCode).toContain('const line2000 = 2000')
     expect(highlightedCode).not.toContain('const line2001 = 2001')
-    await clickElement(view.getByRole('button', { name: 'Show all loaded lines' }))
+    await clickElement(view.getByText('Show all loaded lines', { selector: 'button' }))
 
     await waitFor(() => {
       expect(view.getByTestId('workspace-code').textContent).toContain('const line2300 = 2300')
     })
-    expect(view.getByRole('button', { name: 'Collapse preview' })).toBeTruthy()
+    expect(view.getByText('Collapse preview', { selector: 'button' })).toBeTruthy()
   }, 20_000)
 
   it('renders image previews from workspace files', async () => {
