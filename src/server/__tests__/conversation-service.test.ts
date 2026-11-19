@@ -28,6 +28,7 @@ describe('ConversationService', () => {
   let originalTraceProviderId: string | undefined
   let originalTraceProviderName: string | undefined
   let originalTraceProviderFormat: string | undefined
+  let originalServerPort: number
   let originalNvmDir: string | undefined
   let originalHome: string | undefined
   let originalPath: string | undefined
@@ -36,6 +37,8 @@ describe('ConversationService', () => {
   let originalDisableTerminalShellEnv: string | undefined
 
   beforeEach(async () => {
+    originalServerPort = ProviderService.getServerPort()
+    ProviderService.setServerPort(3456)
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cc-hust-conversation-service-'))
     originalConfigDir = process.env.CLAUDE_CONFIG_DIR
     originalApiKey = process.env.ANTHROPIC_API_KEY
@@ -82,6 +85,7 @@ describe('ConversationService', () => {
   })
 
   afterEach(async () => {
+    ProviderService.setServerPort(originalServerPort)
     if (originalConfigDir === undefined) delete process.env.CLAUDE_CONFIG_DIR
     else process.env.CLAUDE_CONFIG_DIR = originalConfigDir
 

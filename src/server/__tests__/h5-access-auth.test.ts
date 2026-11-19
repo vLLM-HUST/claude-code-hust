@@ -6,6 +6,9 @@ import * as path from 'node:path'
 import { startServer } from '../index.js'
 import { H5AccessService } from '../services/h5AccessService.js'
 import { ProviderService } from '../services/providerService.js'
+import { getCwdState, setCwdState } from '../../bootstrap/state.js'
+import { _setGlobalConfigCacheForTesting, getProjectPathForConfig } from '../../utils/config.js'
+import { getGlobalClaudeFile } from '../../utils/env.js'
 
 let server: ReturnType<typeof Bun.serve> | undefined
 let baseUrl = ''
@@ -13,12 +16,20 @@ let wsBaseUrl = ''
 let lanBaseUrl = ''
 let lanWsBaseUrl = ''
 let tmpDir = ''
+let originalNodeEnv: string | undefined
 let originalConfigDir: string | undefined
 let originalAnthropicApiKey: string | undefined
 let originalH5DistDir: string | undefined
 let originalClaudeAppRoot: string | undefined
 let originalServerAuthRequired: string | undefined
 let originalServerPort = 3456
+let originalCwdState: string
+
+function clearMcpConfigPathCaches() {
+  getGlobalClaudeFile.cache.clear?.()
+  getProjectPathForConfig.cache.clear?.()
+  _setGlobalConfigCacheForTesting(null)
+}
 const PHONE_ORIGIN = 'https://phone.example'
 
 async function waitForServer(url: string): Promise<void> {
@@ -198,13 +209,18 @@ const settingsSurfaceEndpoints = [
 
 beforeEach(async () => {
   tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'h5-access-auth-test-'))
+  originalNodeEnv = process.env.NODE_ENV
+  process.env.NODE_ENV = 'development'
   originalConfigDir = process.env.CLAUDE_CONFIG_DIR
   originalAnthropicApiKey = process.env.ANTHROPIC_API_KEY
   originalH5DistDir = process.env.CLAUDE_H5_DIST_DIR
   originalClaudeAppRoot = process.env.CLAUDE_APP_ROOT
   originalServerAuthRequired = process.env.SERVER_AUTH_REQUIRED
   originalServerPort = ProviderService.getServerPort()
+  originalCwdState = getCwdState()
+  setCwdState(tmpDir)
   process.env.CLAUDE_CONFIG_DIR = tmpDir
+  clearMcpConfigPathCaches()
   const h5DistDir = path.join(tmpDir, 'dist')
   process.env.CLAUDE_H5_DIST_DIR = h5DistDir
   delete process.env.ANTHROPIC_API_KEY
@@ -235,6 +251,10 @@ afterEach(async () => {
   if (originalServerAuthRequired === undefined) delete process.env.SERVER_AUTH_REQUIRED
   else process.env.SERVER_AUTH_REQUIRED = originalServerAuthRequired
 
+  if (originalNodeEnv === undefined) delete process.env.NODE_ENV
+  else process.env.NODE_ENV = originalNodeEnv
+  setCwdState(originalCwdState)
+  clearMcpConfigPathCaches()
   await fs.rm(tmpDir, { recursive: true, force: true })
 })
 

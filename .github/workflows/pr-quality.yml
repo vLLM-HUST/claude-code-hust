@@ -99,6 +99,10 @@ jobs:
       - name: Install root dependencies
         run: bun install
 
+      - name: Install server-imported adapter dependencies
+        working-directory: adapters
+        run: bun install --frozen-lockfile
+
       - name: Prepare ripgrep for source tests
         run: |
           sudo apt-get update -qq
