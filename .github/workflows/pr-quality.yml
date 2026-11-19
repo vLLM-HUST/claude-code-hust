@@ -162,6 +162,10 @@ jobs:
         working-directory: desktop
         run: bun install
 
+      - name: Install sidecar adapter dependencies
+        working-directory: adapters
+        run: bun install --frozen-lockfile
+
       - name: Run desktop native checks
         run: bun run check:native
 
